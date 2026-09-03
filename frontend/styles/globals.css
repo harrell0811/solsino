@@ -1,0 +1,465 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Anchored to Solana's own brand marks rather than a generic dark
+     theme — this is a Solana casino, so the palette should read as
+     one at a glance. */
+  --bg: #0e0f13;
+  --surface: #16171d;
+  --surface-raised: #1d1f27;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #ececef;
+  --text-muted: #8b8d98;
+  --brand: #9945ff;
+  --brand-dim: rgba(153, 69, 255, 0.15);
+  --positive: #14f195;
+  --positive-dim: rgba(20, 241, 149, 0.12);
+  --negative: #ff5c5c;
+  --negative-dim: rgba(255, 92, 92, 0.12);
+  --radius: 6px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+input {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+input:hover {
+  border-color: var(--border-strong);
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.btn {
+  border: 1px solid var(--border-strong);
+  background: var(--surface-raised);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--brand);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-brand {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: white;
+}
+
+.btn-brand:hover:not(:disabled) {
+  background: #8535e8;
+}
+
+.btn-positive {
+  background: var(--positive-dim);
+  border-color: var(--positive);
+  color: var(--positive);
+}
+
+.btn-negative {
+  background: var(--negative-dim);
+  border-color: var(--negative);
+  color: var(--negative);
+}
+
+/* Restyle the wallet-adapter default button to match our palette
+   instead of its stock purple gradient pill. */
+.wallet-adapter-button {
+  background-color: var(--brand) !important;
+  border-radius: var(--radius) !important;
+  height: auto !important;
+  padding: 10px 18px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+}
+
+.wallet-adapter-button:hover {
+  background-color: #8535e8 !important;
+}
+
+.wallet-adapter-modal-wrapper {
+  background: var(--surface) !important;
+}
+
+/* ---------- Coinflip ---------- */
+
+.coin-scene {
+  perspective: 600px;
+  width: 88px;
+  height: 88px;
+}
+
+.coin {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease;
+}
+
+.coin-flipping {
+  animation: coin-spin 0.9s cubic-bezier(0.3, 0.1, 0.3, 1);
+}
+
+@keyframes coin-spin {
+  from {
+    transform: rotateY(0deg) rotateX(0deg);
+  }
+  to {
+    transform: rotateY(1800deg) rotateX(360deg);
+  }
+}
+
+.coin-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+  font-size: 28px;
+  backface-visibility: hidden;
+  background: linear-gradient(160deg, var(--brand), #6b21e8);
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  box-shadow: 0 6px 18px rgba(153, 69, 255, 0.35);
+}
+
+.coin-face-tails {
+  transform: rotateY(180deg);
+  background: linear-gradient(160deg, #14f195, #0aa76a);
+  box-shadow: 0 6px 18px rgba(20, 241, 149, 0.3);
+}
+
+.coinflip-streak-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: linear-gradient(120deg, var(--brand-dim), var(--positive-dim));
+  border: 1px solid var(--border-strong);
+  font-size: 13px;
+  animation: slot-banner-pop 0.3s ease;
+}
+
+/* ---------- Mines ---------- */
+
+.tile {
+  transform: scale(1);
+}
+
+.tile-pop {
+  animation: tile-pop 0.28s ease;
+}
+
+@keyframes tile-pop {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.4;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.tile-mine {
+  animation: tile-mine-pulse 0.5s ease;
+}
+
+@keyframes tile-mine-pulse {
+  0% {
+    transform: scale(1);
+    background: var(--negative) !important;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.mines-grid-shake {
+  animation: grid-shake 0.4s ease;
+}
+
+@keyframes grid-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* ---------- Crash ---------- */
+
+.crash-stage {
+  position: relative;
+  height: 260px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: radial-gradient(120% 100% at 50% 100%, rgba(153, 69, 255, 0.12), transparent 60%), var(--bg);
+  border: 1px solid var(--border);
+}
+
+.crash-multiplier {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 42px;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.crash-multiplier.crash-live {
+  color: var(--positive);
+}
+
+.crash-multiplier.crash-dead {
+  color: var(--negative);
+}
+
+.crash-rocket {
+  font-size: 22px;
+  transition: left 0.1s linear, bottom 0.1s linear, transform 0.15s ease;
+}
+
+.crash-rocket.crash-boom {
+  animation: crash-boom 0.5s ease forwards;
+}
+
+@keyframes crash-boom {
+  0% {
+    opacity: 1;
+    transform: scale(1) rotate(45deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.2) rotate(45deg);
+  }
+}
+
+.crash-flash {
+  animation: crash-flash 0.5s ease;
+}
+
+@keyframes crash-flash {
+  0% {
+    background: rgba(255, 92, 92, 0.35);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* ---------- Slot Machine ---------- */
+
+.slot-machine {
+  background: radial-gradient(140% 100% at 50% 0%, rgba(153, 69, 255, 0.08), transparent 55%), var(--surface);
+}
+
+.slot-bonus-banner {
+  margin-top: 12px;
+  padding: 10px;
+  text-align: center;
+  border-radius: var(--radius);
+  background: linear-gradient(120deg, var(--brand), #14f195);
+  color: #0e0f13;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  animation: slot-banner-pop 0.4s ease;
+}
+
+@keyframes slot-banner-pop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.slot-reel-frame {
+  position: relative;
+  margin-top: 16px;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: #0a0b0f;
+  border: 1px solid var(--border-strong);
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.slot-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.slot-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  background: var(--surface-raised);
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.slot-cell-lit {
+  border-color: var(--positive);
+  background: var(--positive-dim);
+  animation: slot-cell-pulse 0.6s ease infinite alternate;
+}
+
+@keyframes slot-cell-pulse {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.06);
+  }
+}
+
+/* The column itself now genuinely swaps symbols while spinning (see
+   SlotMachine's per-column cycle interval), so this just adds the
+   downward roll + slight blur on top of that real symbol motion —
+   together they read as a reel actually rolling rather than a
+   flicker. */
+.slot-col-spinning .slot-cell {
+  animation: slot-roll-cycle 0.14s linear infinite;
+  filter: blur(1px);
+}
+
+@keyframes slot-roll-cycle {
+  0% {
+    transform: translateY(-30%);
+    opacity: 0.5;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(30%);
+    opacity: 0.5;
+  }
+}
+
+.slot-celebrate {
+  animation: slot-frame-glow 0.5s ease infinite alternate;
+}
+
+@keyframes slot-frame-glow {
+  0% {
+    box-shadow: 0 0 0px rgba(20, 241, 149, 0);
+  }
+  100% {
+    box-shadow: 0 0 24px rgba(20, 241, 149, 0.5);
+  }
+}
+
+.slot-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.slot-confetti-piece {
+  position: absolute;
+  top: -20px;
+  animation: slot-confetti-fall 1.6s ease-in forwards;
+}
+
+@keyframes slot-confetti-fall {
+  0% {
+    top: -20px;
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+    transform: rotate(360deg);
+  }
+}

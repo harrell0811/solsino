@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+
+  // Solana wallet address used for deposits/withdrawals
+  walletAddress String   @unique
+
+  // Optional player-chosen display name, editable from the profile panel
+  displayName   String?
+
+  // Custodial internal balance (store as smallest unit / lamports
+  // equivalent as BigInt to avoid float rounding issues)
+  balanceLamports BigInt @default(0)
+
+  seedPairs     SeedPair[]
+  bets          Bet[]
+  deposits      Transaction[] @relation("deposits")
+  withdrawals   Transaction[] @relation("withdrawals")
+  chatMessages  ChatMessage[]
+}
+
+// Active + historical provably-fair seed pairs per user
+model SeedPair {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+
+  serverSeed     String   // kept secret until rotated
+  serverSeedHash String   // shown to player immediately (the commit)
+  clientSeed     String
+  nonce          Int      @default(0)
+
+  active         Boolean  @default(true)
+  revealedAt     DateTime? // set when rotated out / serverSeed disclosed
+  createdAt      DateTime @default(now())
+
+  bets           Bet[]
+}
+
+model Bet {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+
+  seedPairId   String
+  seedPair     SeedPair @relation(fields: [seedPairId], references: [id])
+  nonce        Int      // nonce value at time of this bet
+
+  game         String   // 'coinflip' | 'mines' | 'keno'
+  wagerLamports BigInt
+  payoutLamports BigInt @default(0)
+  choice       Json     // game-specific input, e.g. { "side": "heads" }
+  result       Json     // game-specific outcome, e.g. { "side": "tails" }
+  won          Boolean
+
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([game])
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  txSignature   String   @unique // on-chain Solana tx signature
+  amountLamports BigInt
+  status        String   @default("pending") // pending | confirmed | failed
+
+  depositUserId    String?
+  depositUser      User?  @relation("deposits", fields: [depositUserId], references: [id])
+  withdrawUserId   String?
+  withdrawUser     User?  @relation("withdrawals", fields: [withdrawUserId], references: [id])
+
+  createdAt     DateTime @default(now())
+}
+
+// Log of every transfer of accumulated house edge revenue out to
+// the profit wallet. Used to compute how much profit is still
+// "unswept" (see /api/wallet/sweep-profits).
+model ProfitSweep {
+  id             String   @id @default(uuid())
+  amountLamports BigInt
+  txSignature    String   @unique
+  createdAt      DateTime @default(now())
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  createdAt DateTime @default(now())
+}
