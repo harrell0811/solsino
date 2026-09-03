@@ -114,12 +114,30 @@ async function pollOnce() {
   }
 }
 
+let pollInFlight = false;
+
 function startDepositWatcher() {
   console.log(`Starting deposit watcher (polling every ${POLL_INTERVAL_MS / 1000}s)`);
-  pollOnce().catch((err) => console.error('deposit watcher error:', err));
-  return setInterval(() => {
-    pollOnce().catch((err) => console.error('deposit watcher error:', err));
-  }, POLL_INTERVAL_MS);
+
+  const tick = () => {
+    // Skip this tick entirely if the previous poll (including any RPC
+    // retry/backoff) hasn't finished yet — without this guard, a slow
+    // or rate-limited RPC endpoint causes poll cycles to stack up
+    // indefinitely and can take the whole process down.
+    if (pollInFlight) {
+      console.warn('deposit watcher: previous poll still in flight, skipping this tick');
+      return;
+    }
+    pollInFlight = true;
+    pollOnce()
+      .catch((err) => console.error('deposit watcher error:', err))
+      .finally(() => {
+        pollInFlight = false;
+      });
+  };
+
+  tick();
+  return setInterval(tick, POLL_INTERVAL_MS);
 }
 
 module.exports = { startDepositWatcher, pollOnce };
