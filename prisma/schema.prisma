@@ -14,9 +14,6 @@ model User {
   // Solana wallet address used for deposits/withdrawals
   walletAddress String   @unique
 
-  // Optional player-chosen display name, editable from the profile panel
-  displayName   String?
-
   // Custodial internal balance (store as smallest unit / lamports
   // equivalent as BigInt to avoid float rounding issues)
   balanceLamports BigInt @default(0)

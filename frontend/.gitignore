@@ -1,6 +1,8 @@
+node_modules/.next/.env.env.local.env.*.local.DS_Store.env.local.exampleEOF
 node_modules/
 .next/
 .env
 .env.local
+.env.local.example
 .env.*.local
 .DS_Store

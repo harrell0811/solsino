@@ -50,12 +50,6 @@ let phaseTimer = null;
 // userId -> { betId, wagerLamports, cashedOut, cashoutMultiplier }
 let activeBets = new Map();
 
-// Most recent crash points, newest first — purely in-memory, just
-// for the "recent history" strip in the UI (not used for fairness
-// verification, which relies on the per-round serverSeed instead).
-const MAX_HISTORY = 25;
-let roundHistory = [];
-
 function generateRoundSeed() {
   return crypto.randomBytes(32).toString('hex');
 }
@@ -101,7 +95,6 @@ function getPublicState() {
     serverSeed: phase === 'crashed' ? roundServerSeed : null,
     phaseEndsAt,
     playerCount: activeBets.size,
-    recentCrashes: roundHistory,
   };
 }
 
@@ -172,8 +165,6 @@ function finishRound() {
   phase = 'crashed';
   currentMultiplier = crashPoint;
   phaseEndsAt = Date.now() + CRASHED_PAUSE_MS;
-
-  roundHistory = [Number(crashPoint.toFixed(2)), ...roundHistory].slice(0, MAX_HISTORY);
 
   broadcast('crash:crashed');
   settleLosers();
