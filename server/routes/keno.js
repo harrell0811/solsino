@@ -23,7 +23,9 @@ router.post('/play', async (req, res) => {
       return { drawn, hits, multiplier, payout, newBalanceLamports: updated.balanceLamports };
     });
     betEvents.emit('bet', { game: 'keno', wagerLamports: wager.toString(), payoutLamports: result.payout.toString(), won: result.payout > wager });
-    res.json({ ...result, payoutLamports: result.payout.toString(), newBalanceLamports: result.newBalanceLamports.toString() });
+    // Do not spread the internal result: it carries BigInt values which
+    // JSON.stringify cannot serialize.
+    res.json({ drawn: result.drawn, hits: result.hits, multiplier: result.multiplier, payoutLamports: result.payout.toString(), newBalanceLamports: result.newBalanceLamports.toString() });
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 module.exports = router;
