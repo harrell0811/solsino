@@ -93,6 +93,30 @@ export const api = {
       body: JSON.stringify({ userId, roundId }),
     }),
 
+  betLimbo: (userId, wagerLamports, targetMultiplier) =>
+    request('/api/games/limbo/bet', {
+      method: 'POST',
+      body: JSON.stringify({ userId, wagerLamports, targetMultiplier }),
+    }),
+
+  startDragonTower: (userId, wagerLamports, difficulty) =>
+    request('/api/games/dragontower/start', {
+      method: 'POST',
+      body: JSON.stringify({ userId, wagerLamports, difficulty }),
+    }),
+
+  revealDragonTower: (userId, roundId, tile) =>
+    request('/api/games/dragontower/reveal', {
+      method: 'POST',
+      body: JSON.stringify({ userId, roundId, tile }),
+    }),
+
+  cashoutDragonTower: (userId, roundId) =>
+    request('/api/games/dragontower/cashout', {
+      method: 'POST',
+      body: JSON.stringify({ userId, roundId }),
+    }),
+
   crashState: () => request('/api/games/crash/state'),
 
   crashBet: (userId, wagerLamports) =>

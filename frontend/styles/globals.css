@@ -30,6 +30,10 @@
   --crash-b: #ff4d6d;
   --slots-a: #4d6bff;
   --slots-b: #7b3dff;
+  --limbo-a: #ff5252;
+  --limbo-b: #ff9142;
+  --dragontower-a: #2ecc71;
+  --dragontower-b: #16794e;
 }
 
 * {
@@ -180,7 +184,7 @@ input:hover {
 
 .game-tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-bottom: 20px;
 }
@@ -233,6 +237,14 @@ input:hover {
 
 .game-tab-slots {
   background: linear-gradient(150deg, var(--slots-a), var(--slots-b));
+}
+
+.game-tab-limbo {
+  background: linear-gradient(150deg, var(--limbo-a), var(--limbo-b));
+}
+
+.game-tab-dragontower {
+  background: linear-gradient(150deg, var(--dragontower-a), var(--dragontower-b));
 }
 
 @media (max-width: 860px) {

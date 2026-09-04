@@ -10,6 +10,8 @@ import { api, solToLamports, lamportsToSol } from '../lib/api';
 import CoinflipGame from '../components/CoinflipGame';
 import MinesGame from '../components/MinesGame';
 import CrashGame from '../components/CrashGame';
+import LimboGame from '../components/LimboGame';
+import DragonTowerGame from '../components/DragonTowerGame';
 import SlotMachine from '../components/SlotMachine';
 import ChatPanel from '../components/ChatPanel';
 import BetTicker from '../components/BetTicker';
@@ -259,6 +261,20 @@ export default function Home() {
               <span className="game-tab-icon">🎰</span>
               Slots
             </button>
+            <button
+              className={`game-tab game-tab-limbo ${activeGame === 'limbo' ? 'game-tab-active' : ''}`}
+              onClick={() => setActiveGame('limbo')}
+            >
+              <span className="game-tab-icon">🔥</span>
+              Limbo
+            </button>
+            <button
+              className={`game-tab game-tab-dragontower ${activeGame === 'dragontower' ? 'game-tab-active' : ''}`}
+              onClick={() => setActiveGame('dragontower')}
+            >
+              <span className="game-tab-icon">🐉</span>
+              Dragon Tower
+            </button>
           </div>
 
           {activeGame === 'coinflip' && (
@@ -285,6 +301,20 @@ export default function Home() {
           )}
           {activeGame === 'slots' && (
             <SlotMachine
+              userId={user?.userId}
+              balanceLamports={user?.balanceLamports}
+              onBalanceChange={handleBalanceChange}
+            />
+          )}
+          {activeGame === 'limbo' && (
+            <LimboGame
+              userId={user?.userId}
+              balanceLamports={user?.balanceLamports}
+              onBalanceChange={handleBalanceChange}
+            />
+          )}
+          {activeGame === 'dragontower' && (
+            <DragonTowerGame
               userId={user?.userId}
               balanceLamports={user?.balanceLamports}
               onBalanceChange={handleBalanceChange}
