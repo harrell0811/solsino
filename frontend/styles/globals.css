@@ -1,10 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Baloo+2:wght@600;700;800&display=swap');
 
 :root {
-  /* Anchored to Solana's own brand marks rather than a generic dark
-     theme — this is a Solana casino, so the palette should read as
-     one at a glance. */
-  --bg: #0e0f13;
+  /* Dark base, but with punchy per-game accent colors layered on top —
+     a casino lobby should feel alive, not like a trading terminal. */
+  --bg: #0b0c10;
   --surface: #16171d;
   --surface-raised: #1d1f27;
   --border: rgba(255, 255, 255, 0.08);
@@ -17,7 +16,20 @@
   --positive-dim: rgba(20, 241, 149, 0.12);
   --negative: #ff5c5c;
   --negative-dim: rgba(255, 92, 92, 0.12);
-  --radius: 6px;
+  --radius: 14px;
+  --radius-sm: 10px;
+
+  /* Per-game accent colors, used by the game-tab tiles and each game's
+     own accent touches (buttons, glows) so every game has a distinct
+     identity instead of one flat purple everywhere. */
+  --coinflip-a: #ff6fa5;
+  --coinflip-b: #ff9a56;
+  --mines-a: #7b61ff;
+  --mines-b: #4d3dc9;
+  --crash-a: #ff7a45;
+  --crash-b: #ff4d6d;
+  --slots-a: #4d6bff;
+  --slots-b: #7b3dff;
 }
 
 * {
@@ -32,6 +44,10 @@ body {
   color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+.display-font {
+  font-family: 'Baloo 2', 'Inter', sans-serif;
 }
 
 a {
@@ -79,15 +95,20 @@ input:hover {
   border: 1px solid var(--border-strong);
   background: var(--surface-raised);
   color: var(--text);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   padding: 10px 18px;
   font-size: 14px;
-  font-weight: 500;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  font-weight: 600;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
 }
 
 .btn:hover:not(:disabled) {
   border-color: var(--brand);
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn:disabled {
@@ -96,13 +117,15 @@ input:hover {
 }
 
 .btn-brand {
-  background: var(--brand);
-  border-color: var(--brand);
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  border-color: transparent;
   color: white;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
 }
 
 .btn-brand:hover:not(:disabled) {
-  background: #8535e8;
+  background: linear-gradient(135deg, #b968ff, #8b4dff);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.55);
 }
 
 .btn-positive {
@@ -115,6 +138,120 @@ input:hover {
   background: var(--negative-dim);
   border-color: var(--negative);
   color: var(--negative);
+}
+
+/* ---------- Layout ---------- */
+
+.page {
+  min-height: 100vh;
+  padding: 24px 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.deposit-withdraw-row {
+  display: flex;
+  gap: 24px;
+}
+
+/* ---------- Game selector tiles ---------- */
+
+.game-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.game-tab {
+  position: relative;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 16px 10px;
+  font-family: 'Baloo 2', 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: white;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0.62;
+  transform: scale(0.97);
+  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.game-tab:hover {
+  opacity: 0.85;
+}
+
+.game-tab-active {
+  opacity: 1;
+  transform: scale(1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.game-tab-icon {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
+}
+
+.game-tab-coinflip {
+  background: linear-gradient(150deg, var(--coinflip-a), var(--coinflip-b));
+}
+
+.game-tab-mines {
+  background: linear-gradient(150deg, var(--mines-a), var(--mines-b));
+}
+
+.game-tab-crash {
+  background: linear-gradient(150deg, var(--crash-a), var(--crash-b));
+}
+
+.game-tab-slots {
+  background: linear-gradient(150deg, var(--slots-a), var(--slots-b));
+}
+
+@media (max-width: 860px) {
+  .page {
+    padding: 16px;
+  }
+
+  .layout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .deposit-withdraw-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .game-tabs {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* Restyle the wallet-adapter default button to match our palette

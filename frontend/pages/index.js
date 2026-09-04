@@ -1,19 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
-
-// WalletMultiButton reads browser-only wallet state (installed wallets, connection
-// status), so its initial render differs between server and client. Loading it with
-// ssr: false skips server rendering for this component and avoids the hydration
-// mismatch error.
-const WalletMultiButton = dynamic(
-  () =>
-    import('@solana/wallet-adapter-react-ui').then(
-      (mod) => mod.WalletMultiButton
-    ),
-  { ssr: false }
-);
+import ConnectWalletButton from '../components/ConnectWalletButton';
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { createMemoInstruction } from '@solana/spl-memo';
 import { io } from 'socket.io-client';
@@ -120,25 +108,19 @@ export default function Home() {
   );
 
   return (
-    <div style={{ minHeight: '100vh', padding: '24px 32px', maxWidth: 1200, margin: '0 auto' }}>
+    <div className="page">
       <Head>
         <title>Solsino</title>
         <meta name="description" content="Solsino — a Solana devnet casino: coinflip, mines, and crash." />
       </Head>
-      <header
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 32,
-        }}
-      >
+      <header className="app-header">
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
           <h1
+            className="display-font"
             style={{
               margin: 0,
-              fontSize: 22,
-              fontWeight: 700,
+              fontSize: 24,
+              fontWeight: 800,
               background: 'linear-gradient(120deg, #9945ff, #14f195)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -150,7 +132,7 @@ export default function Home() {
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>devnet</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div className="app-header-right">
           {user && (
             <div className="mono panel" style={{ padding: '8px 14px', fontSize: 14 }}>
               {balanceSol} <span style={{ color: 'var(--text-muted)' }}>SOL</span>
@@ -161,7 +143,7 @@ export default function Home() {
               {user.displayName || `${user.walletAddress.slice(0, 4)}…${user.walletAddress.slice(-4)}`}
             </button>
           )}
-          <WalletMultiButton />
+          <ConnectWalletButton />
         </div>
       </header>
 
@@ -175,11 +157,11 @@ export default function Home() {
         />
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
+      <div className="layout-grid">
         <div>
           {connected && (
             <div className="panel" style={{ marginBottom: 24 }}>
-              <div style={{ display: 'flex', gap: 24 }}>
+              <div className="deposit-withdraw-row">
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
                     Deposit (SOL)
@@ -238,29 +220,33 @@ export default function Home() {
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <div className="game-tabs">
             <button
-              className={`btn ${activeGame === 'coinflip' ? 'btn-brand' : ''}`}
+              className={`game-tab game-tab-coinflip ${activeGame === 'coinflip' ? 'game-tab-active' : ''}`}
               onClick={() => setActiveGame('coinflip')}
             >
-              Coinflip
+              <span className="game-tab-icon">🪙</span>
+              Flip
             </button>
             <button
-              className={`btn ${activeGame === 'mines' ? 'btn-brand' : ''}`}
+              className={`game-tab game-tab-mines ${activeGame === 'mines' ? 'game-tab-active' : ''}`}
               onClick={() => setActiveGame('mines')}
             >
+              <span className="game-tab-icon">💣</span>
               Mines
             </button>
             <button
-              className={`btn ${activeGame === 'crash' ? 'btn-brand' : ''}`}
+              className={`game-tab game-tab-crash ${activeGame === 'crash' ? 'game-tab-active' : ''}`}
               onClick={() => setActiveGame('crash')}
             >
+              <span className="game-tab-icon">🚀</span>
               Crash
             </button>
             <button
-              className={`btn ${activeGame === 'slots' ? 'btn-brand' : ''}`}
+              className={`game-tab game-tab-slots ${activeGame === 'slots' ? 'game-tab-active' : ''}`}
               onClick={() => setActiveGame('slots')}
             >
+              <span className="game-tab-icon">🎰</span>
               Slots
             </button>
           </div>
