@@ -164,8 +164,10 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
         await wait(1100);
 
         let running = 0n;
-        for (const spin of bonusSpins) {
+        for (let i = 0; i < bonusSpins.length; i++) {
+          const spin = bonusSpins[i];
           setBonusSpinsLeft((n) => n - 1);
+          setStatusText(`FREE SPIN ${i + 1}/${bonusSpins.length} · ${spin.stickyWilds || 0} STICKY WILDS`);
           await revealSpin(spin);
           running += BigInt(spin.payoutLamports);
           setBonusTotal(running);
@@ -252,7 +254,7 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
                   return lines[lineIdx][colIdx] === rowIdx;
                 });
                 return (
-                  <div key={rowIdx} className={`slot-cell ${isLit ? 'slot-cell-lit' : ''}`}>
+                  <div key={rowIdx} className={`slot-cell ${isLit ? 'slot-cell-lit' : ''} ${bonusActive && emoji === '⭐' ? 'slot-cell-sticky' : ''}`}>
                     {emoji}
                   </div>
                 );

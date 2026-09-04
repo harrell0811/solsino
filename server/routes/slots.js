@@ -28,11 +28,16 @@ const SYMBOLS = [
 ];
 const SCATTER = { id: 'scatter', emoji: '🎰', weight: 3 };
 const SCATTER_PAY = { 3: 2, 4: 5, 5: 15 }; // × total bet, paid on top of any line wins
-const FREE_SPINS_AWARD = { 3: 5, 4: 8, 5: 12 };
+const FREE_SPINS_AWARD = { 3: 8, 4: 10, 5: 10 };
 const FREE_SPIN_MULTIPLIER = 2; // every win during free spins pays double
 
 const WEIGHTED_POOL = [...SYMBOLS, SCATTER];
 const TOTAL_WEIGHT = WEIGHTED_POOL.reduce((sum, s) => sum + s.weight, 0);
+// Free spins lean into premium symbols and wilds. The result is still derived
+// from the committed seed; this only changes the published bonus pay table.
+const BONUS_WEIGHTS = { lightning: 16, rocket: 15, moon: 14, diamond: 20, fire: 14, seven: 9, wild: 18, scatter: 2 };
+const BONUS_WEIGHTED_POOL = [...SYMBOLS, SCATTER].map((symbol) => ({ ...symbol, weight: BONUS_WEIGHTS[symbol.id] }));
+const BONUS_TOTAL_WEIGHT = BONUS_WEIGHTED_POOL.reduce((sum, s) => sum + s.weight, 0);
 
 const PAYLINES = [
   [1, 1, 1, 1, 1], // middle row
@@ -42,24 +47,39 @@ const PAYLINES = [
   [2, 1, 0, 1, 2], // ^
 ];
 
-function pickSymbol(float) {
-  const target = float * TOTAL_WEIGHT;
+function pickSymbol(float, pool = WEIGHTED_POOL, totalWeight = TOTAL_WEIGHT) {
+  const target = float * totalWeight;
   let cumulative = 0;
-  for (const s of WEIGHTED_POOL) {
+  for (const s of pool) {
     cumulative += s.weight;
     if (target < cumulative) return s;
   }
-  return WEIGHTED_POOL[WEIGHTED_POOL.length - 1];
+  return pool[pool.length - 1];
 }
 
 /** One provably-fair grid: REELS x ROWS symbols from a single nonce. */
-function spinGrid(serverSeed, clientSeed, nonce) {
+function spinGrid(serverSeed, clientSeed, nonce, isBonus = false) {
   const floats = getResults(serverSeed, clientSeed, nonce, REELS * ROWS);
+  const pool = isBonus ? BONUS_WEIGHTED_POOL : WEIGHTED_POOL;
+  const totalWeight = isBonus ? BONUS_TOTAL_WEIGHT : TOTAL_WEIGHT;
   const grid = [];
   for (let col = 0; col < REELS; col++) {
-    grid.push([0, 1, 2].map((row) => pickSymbol(floats[col * ROWS + row])));
+    grid.push([0, 1, 2].map((row) => pickSymbol(floats[col * ROWS + row], pool, totalWeight)));
   }
   return grid;
+}
+
+function wildPositions(grid) {
+  const positions = [];
+  grid.forEach((col, reel) => col.forEach((symbol, row) => {
+    if (symbol.isWild) positions.push([reel, row]);
+  }));
+  return positions;
+}
+
+function applyStickyWilds(grid, positions) {
+  const wild = SYMBOLS.find((symbol) => symbol.isWild);
+  positions.forEach(([reel, row]) => { grid[reel][row] = wild; });
 }
 
 function evaluateLine(lineSymbols) {
@@ -172,10 +192,13 @@ router.post('/spin', async (req, res) => {
 
       let freeSpinsRemaining = FREE_SPINS_AWARD[baseResolved.scatterCount] || 0;
       const bonusTriggered = freeSpinsRemaining > 0;
+      let stickyWilds = wildPositions(baseGrid);
 
       while (freeSpinsRemaining > 0) {
-        const grid = spinGrid(seedPair.serverSeed, seedPair.clientSeed, seedPair.nonce + nonceOffset);
+        const grid = spinGrid(seedPair.serverSeed, seedPair.clientSeed, seedPair.nonce + nonceOffset, true);
         nonceOffset++;
+        applyStickyWilds(grid, stickyWilds);
+        stickyWilds = wildPositions(grid);
         const resolved = resolveGrid(grid, betPerLine, wager);
         const boosted = resolved.payout * BigInt(FREE_SPIN_MULTIPLIER);
         rawPayout += boosted;
@@ -184,6 +207,7 @@ router.post('/spin', async (req, res) => {
           grid: gridToEmoji(grid),
           lineResults: resolved.lineResults,
           scatterCount: resolved.scatterCount,
+          stickyWilds: stickyWilds.length,
           payoutLamports: boosted.toString(),
         });
         freeSpinsRemaining--;
