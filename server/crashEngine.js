@@ -33,7 +33,9 @@ const HOUSE_EDGE_PERCENT = 4; // 4% — same ballpark as mines
 const WAITING_MS = 7000; // betting window before a round starts
 const CRASHED_PAUSE_MS = 3500; // pause on the crash screen before the next round
 const TICK_MS = 100; // multiplier broadcast cadence
-const GROWTH_PER_MS = 0.00006; // tuned so ~2x lands around 11-12s in
+// Exponential growth makes every successive increment arrive faster. This
+// steeper curve keeps early cash-outs readable while higher numbers race up.
+const GROWTH_PER_MS = 0.000085; // ~2x in 8s, ~10x in 27s
 
 let io = null;
 let phase = 'waiting'; // 'waiting' | 'running' | 'crashed'

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api, solToLamports, lamportsToSol } from '../lib/api';
 import QuickBetButtons from './QuickBetButtons';
 
@@ -18,6 +18,14 @@ export default function DragonTowerGame({ userId, balanceLamports, onBalanceChan
   // round: { roundId, tilesPerLevel, level, picks: [{level, tile, safe}], busted, cashedOut, multiplier }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const activeRowRef = useRef(null);
+
+  // Keep the newly unlocked level in view as the tower grows upward.
+  useEffect(() => {
+    if (round && activeRowRef.current) {
+      activeRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [round?.level]);
 
   async function startRound() {
     if (!userId) return;
@@ -144,8 +152,8 @@ export default function DragonTowerGame({ userId, balanceLamports, onBalanceChan
 
       {round && (
         <>
-          <div style={{ display: 'flex', flexDirection: 'column-reverse', gap: 6, marginTop: 20 }}>
-            {Array.from({ length: LEVELS }).map((_, level) => {
+          <div className="dragon-tower-rows">
+            {Array.from({ length: Math.min(LEVELS, round.level + 1) }).map((_, level) => {
               const pick_ = pickForLevel(level);
               const isCurrentLevel = level === round.level && inRound;
               const isPastLevel = level < round.level || (pick_ && !pick_.safe);
@@ -154,6 +162,7 @@ export default function DragonTowerGame({ userId, balanceLamports, onBalanceChan
               return (
                 <div
                   key={level}
+                  ref={isCurrentLevel ? activeRowRef : null}
                   style={{
                     display: 'grid',
                     gridTemplateColumns: `repeat(${round.tilesPerLevel}, 1fr)`,
