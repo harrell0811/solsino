@@ -15,6 +15,8 @@ const crashRoutes = require('./routes/crash');
 const slotsRoutes = require('./routes/slots');
 const adminRoutes = require('./routes/admin');
 const crashEngine = require('./crashEngine');
+const limboRoutes = require('./routes/limbo');
+const dragonTowerRoutes = require('./routes/dragonTower');  
 const { startDepositWatcher } = require('./depositWatcher');
 
 const app = express();
@@ -27,8 +29,11 @@ app.use('/api/wallet', walletRoutes);
 app.use('/api/games/mines', minesRoutes);
 app.use('/api/games/crash', crashRoutes);
 app.use('/api/games/slots', slotsRoutes);
+app.use('/api/games/limbo', limboRoutes);
+app.use('/api/games/dragontower', dragonTowerRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
+
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
