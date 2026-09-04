@@ -14,9 +14,10 @@ const userRoutes = require('./routes/user');
 const crashRoutes = require('./routes/crash');
 const slotsRoutes = require('./routes/slots');
 const adminRoutes = require('./routes/admin');
-const crashEngine = require('./crashEngine');
 const limboRoutes = require('./routes/limbo');
-const dragonTowerRoutes = require('./routes/dragonTower');  
+const dragonTowerRoutes = require('./routes/dragonTower');
+const chatRoutes = require('./routes/chat');
+const crashEngine = require('./crashEngine');
 const { startDepositWatcher } = require('./depositWatcher');
 
 const app = express();
@@ -31,9 +32,9 @@ app.use('/api/games/crash', crashRoutes);
 app.use('/api/games/slots', slotsRoutes);
 app.use('/api/games/limbo', limboRoutes);
 app.use('/api/games/dragontower', dragonTowerRoutes);
+app.use('/api/chat', chatRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
-
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
@@ -82,6 +83,13 @@ io.on('connection', (socket) => {
       // sent — otherwise anyone could type any display name into the
       // socket payload and impersonate another player in chat.
       const resolvedUsername = user.displayName || user.walletAddress.slice(0, 6);
+
+      // Persisted so a fresh page load (or a fresh browser tab) can show
+      // history instead of starting on an empty "No messages yet" — the
+      // ChatMessage model already existed in the schema but was never
+      // actually written to.
+      await prisma.chatMessage.create({ data: { userId, message } });
+
       io.emit('chat:message', { userId, username: resolvedUsername, message, at: Date.now() });
     } catch (err) {
       console.error('chat:message error:', err);

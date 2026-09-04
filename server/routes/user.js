@@ -103,6 +103,42 @@ router.patch('/:id/profile', async (req, res) => {
 });
 
 /**
+ * GET /api/user/:id/public-stats
+ * Non-sensitive aggregate stats safe to show to OTHER players — e.g.
+ * hovering a name in chat. Deliberately excludes current balance and
+ * the full wallet address; only wagering activity and account age.
+ */
+router.get('/:id/public-stats', async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { displayName: true, walletAddress: true, createdAt: true },
+    });
+    if (!user) return res.status(404).json({ error: 'user not found' });
+
+    const [wagerAgg, payoutAgg, betCount] = await Promise.all([
+      prisma.bet.aggregate({ where: { userId }, _sum: { wagerLamports: true } }),
+      prisma.bet.aggregate({ where: { userId }, _sum: { payoutLamports: true } }),
+      prisma.bet.count({ where: { userId } }),
+    ]);
+
+    const totalWagered = wagerAgg._sum.wagerLamports || 0n;
+    const totalPayout = payoutAgg._sum.payoutLamports || 0n;
+
+    res.json({
+      displayName: user.displayName || `${user.walletAddress.slice(0, 4)}…${user.walletAddress.slice(-4)}`,
+      memberSince: user.createdAt,
+      totalWageredLamports: totalWagered.toString(),
+      netProfitLamports: (totalPayout - totalWagered).toString(),
+      betCount,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/**
  * GET /api/user/:id/bets
  * This user's own bet history (win/loss, wager, payout) for the
  * profile panel — separate from /api/admin/bets/recent, which is

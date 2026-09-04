@@ -39,6 +39,10 @@ export const api = {
 
   getUserTransactions: (userId) => request(`/api/user/${userId}/transactions`),
 
+  getPublicStats: (userId) => request(`/api/user/${userId}/public-stats`),
+
+  getChatHistory: () => request('/api/chat/recent'),
+
   getCurrentSeed: (userId) => request(`/api/seeds/current?userId=${userId}`),
 
   getSeedHistory: (userId) => request(`/api/seeds/history?userId=${userId}`),
