@@ -39,6 +39,16 @@ export const api = {
 
   getUserTransactions: (userId) => request(`/api/user/${userId}/transactions`),
 
+  getCurrentSeed: (userId) => request(`/api/seeds/current?userId=${userId}`),
+
+  getSeedHistory: (userId) => request(`/api/seeds/history?userId=${userId}`),
+
+  rotateSeed: (userId, clientSeed) =>
+    request('/api/seeds/rotate', {
+      method: 'POST',
+      body: JSON.stringify({ userId, clientSeed }),
+    }),
+
   depositInfo: (userId) => request(`/api/wallet/deposit-info?userId=${userId}`),
 
   withdraw: (userId, amountLamports) =>

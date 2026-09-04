@@ -57,4 +57,57 @@ router.post('/rotate', async (req, res) => {
   });
 });
 
+/**
+ * GET /api/seeds/current?userId=
+ * The active commitment for this user, viewable any time — not just
+ * right after a rotate. This is what a "view my seed" panel reads.
+ * serverSeed itself is never returned while a pair is still active,
+ * only its hash (the commit); the plaintext is only ever shown once
+ * it's rotated out, via /history below.
+ */
+router.get('/current', async (req, res) => {
+  const { userId } = req.query;
+  if (!userId) return res.status(400).json({ error: 'userId is required' });
+
+  const active = await prisma.seedPair.findFirst({ where: { userId, active: true } });
+  if (!active) return res.status(404).json({ error: 'no active seed pair for this user' });
+
+  res.json({
+    serverSeedHash: active.serverSeedHash,
+    clientSeed: active.clientSeed,
+    nonce: active.nonce,
+    createdAt: active.createdAt,
+  });
+});
+
+/**
+ * GET /api/seeds/history?userId=
+ * Past, rotated-out seed pairs — these have already been revealed,
+ * so serverSeed is safe to return here. Anyone can hash it and
+ * confirm it matches serverSeedHash, then recompute any past bet's
+ * outcome (see provablyFair.verifyBet) to independently prove
+ * nothing was tampered with.
+ */
+router.get('/history', async (req, res) => {
+  const { userId } = req.query;
+  if (!userId) return res.status(400).json({ error: 'userId is required' });
+
+  const revealed = await prisma.seedPair.findMany({
+    where: { userId, active: false },
+    orderBy: { revealedAt: 'desc' },
+    take: 20,
+  });
+
+  res.json({
+    seedPairs: revealed.map((s) => ({
+      serverSeed: s.serverSeed,
+      serverSeedHash: s.serverSeedHash,
+      clientSeed: s.clientSeed,
+      finalNonce: s.nonce,
+      createdAt: s.createdAt,
+      revealedAt: s.revealedAt,
+    })),
+  });
+});
+
 module.exports = router;

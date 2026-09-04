@@ -14,6 +14,7 @@ import SlotMachine from '../components/SlotMachine';
 import ChatPanel from '../components/ChatPanel';
 import BetTicker from '../components/BetTicker';
 import ProfilePanel from '../components/ProfilePanel';
+import FairnessPanel from '../components/FairnessPanel';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -28,6 +29,7 @@ export default function Home() {
   const [txStatus, setTxStatus] = useState(null);
   const [activeGame, setActiveGame] = useState('coinflip');
   const [showProfile, setShowProfile] = useState(false);
+  const [showFairness, setShowFairness] = useState(false);
 
   // Connect (or create) the backend user record whenever the wallet connects
   useEffect(() => {
@@ -116,7 +118,7 @@ export default function Home() {
       </Head>
       <header className="app-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Image src="/logo.png" alt="Solsino" width={40} height={40} style={{ borderRadius: '50%' }} priority />
+          <Image src="/logo.png" alt="Solsino" width={64} height={64} style={{ borderRadius: '50%' }} priority />
           <h1
             className="display-font"
             style={{
@@ -131,7 +133,6 @@ export default function Home() {
           >
             Solsino
           </h1>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>devnet</span>
         </div>
 
         <div className="app-header-right">
@@ -139,6 +140,11 @@ export default function Home() {
             <div className="mono panel" style={{ padding: '8px 14px', fontSize: 14 }}>
               {balanceSol} <span style={{ color: 'var(--text-muted)' }}>SOL</span>
             </div>
+          )}
+          {user && (
+            <button className="btn" onClick={() => setShowFairness(true)}>
+              🎲 Fair
+            </button>
           )}
           {user && (
             <button className="btn" onClick={() => setShowProfile(true)}>
@@ -158,6 +164,8 @@ export default function Home() {
           onClose={() => setShowProfile(false)}
         />
       )}
+
+      {showFairness && user && <FairnessPanel userId={user.userId} onClose={() => setShowFairness(false)} />}
 
       <div className="layout-grid">
         <div>
@@ -293,6 +301,10 @@ export default function Home() {
           />
         </div>
       </div>
+
+      <footer style={{ textAlign: 'center', padding: '32px 0 16px', color: 'var(--text-muted)', fontSize: 12 }}>
+        Ran from Costa Rica
+      </footer>
     </div>
   );
 }
