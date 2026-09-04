@@ -343,7 +343,6 @@ export default function Home() {
       </div>
 
       <footer className="legal-footer">
-        <div>Devnet demo only — no real-money play.</div>
         <div>The user also attests that they are not a resident of or located at: USA, United Kingdom, France, Germany, Spain, Netherlands or any other blacklisted or restricted jurisdiction where gambling may be illegal. It is your responsibility to ensure that the use of the service is lawful in your country.</div>
       </footer>
     </div>
