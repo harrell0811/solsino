@@ -93,6 +93,7 @@ function getPublicState() {
     multiplier: Number(computeCurrentMultiplier().toFixed(4)),
     crashPoint: phase === 'crashed' ? crashPoint : null,
     serverSeed: phase === 'crashed' ? roundServerSeed : null,
+    runningStartedAt: phase === 'running' ? runningStartedAt : null,
     phaseEndsAt,
     playerCount: activeBets.size,
   };

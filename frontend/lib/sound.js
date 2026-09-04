@@ -54,4 +54,14 @@ export const sound = {
     );
   },
   lose: () => tone({ freq: 140, duration: 0.2, type: 'sine', gain: 0.08 }),
+  countdownTick: () => tone({ freq: 660, duration: 0.05, type: 'square', gain: 0.07 }),
+  liftoff: () => {
+    [220, 277, 330, 392].forEach((freq, i) =>
+      tone({ freq, duration: 0.18, delay: i * 0.05, gain: 0.13, type: 'sawtooth' })
+    );
+  },
+  bust: () => {
+    tone({ freq: 90, duration: 0.3, type: 'sawtooth', gain: 0.18 });
+    tone({ freq: 60, duration: 0.35, type: 'square', gain: 0.12, delay: 0.03 });
+  },
 };
