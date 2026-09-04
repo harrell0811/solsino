@@ -64,4 +64,8 @@ export const sound = {
     tone({ freq: 90, duration: 0.3, type: 'sawtooth', gain: 0.18 });
     tone({ freq: 60, duration: 0.35, type: 'square', gain: 0.12, delay: 0.03 });
   },
+  cardDeal: () => tone({ freq: 440, duration: 0.07, type: 'triangle', gain: 0.1 }),
+  kenoDraw: () => {
+    [360, 420, 500, 620].forEach((freq, i) => tone({ freq, duration: 0.1, delay: i * 0.08, gain: 0.08, type: 'square' }));
+  },
 };
