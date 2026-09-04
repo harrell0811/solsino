@@ -50,6 +50,13 @@ let phaseTimer = null;
 // userId -> { betId, wagerLamports, cashedOut, cashoutMultiplier }
 let activeBets = new Map();
 
+// Ring buffer of recent crash points (newest first), purely in-memory —
+// resets on server restart since there's no dedicated Round table to
+// reload from. Capped well above what the UI actually renders so we
+// have headroom if that ever grows.
+const MAX_RECENT_CRASHES = 25;
+let recentCrashes = [];
+
 function generateRoundSeed() {
   return crypto.randomBytes(32).toString('hex');
 }
@@ -96,6 +103,7 @@ function getPublicState() {
     runningStartedAt: phase === 'running' ? runningStartedAt : null,
     phaseEndsAt,
     playerCount: activeBets.size,
+    recentCrashes,
   };
 }
 
@@ -166,6 +174,8 @@ function finishRound() {
   phase = 'crashed';
   currentMultiplier = crashPoint;
   phaseEndsAt = Date.now() + CRASHED_PAUSE_MS;
+
+  recentCrashes = [crashPoint, ...recentCrashes].slice(0, MAX_RECENT_CRASHES);
 
   broadcast('crash:crashed');
   settleLosers();
@@ -291,7 +301,12 @@ async function cashout(userId) {
   bet.cashedOut = true;
   bet.cashoutMultiplier = multiplier;
 
-  betEvents.emit('bet', { game: 'crash', wagerLamports: bet.wagerLamports.toString(), won: true });
+  betEvents.emit('bet', {
+    game: 'crash',
+    wagerLamports: bet.wagerLamports.toString(),
+    payoutLamports: payout.toString(),
+    won: true,
+  });
 
   return {
     payoutLamports: payout.toString(),

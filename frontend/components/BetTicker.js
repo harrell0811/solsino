@@ -40,31 +40,45 @@ export default function BetTicker({ socket }) {
 
       {recentBets.length > 0 && (
         <div style={{ marginTop: 16, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
-          {recentBets.map((bet, i) => (
-            <div
-              key={i}
-              className="mono"
-              style={{
-                fontSize: 12,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '4px 0',
-                color: 'var(--text-muted)',
-              }}
-            >
-              <span style={{ textTransform: 'capitalize' }}>{bet.game}</span>
-              <span>{lamportsToSol(bet.wagerLamports)} SOL</span>
-              <span
+          {recentBets.map((bet, i) => {
+            // Multiplier isn't sent as its own field (each game computes
+            // it differently), but payout / wager gives the same number
+            // for every game, win or lose, without the server needing to
+            // agree on a shared "multiplier" concept.
+            const wager = Number(bet.wagerLamports || 0);
+            const payout = Number(bet.payoutLamports || 0);
+            const multiplier = bet.won && wager > 0 ? payout / wager : null;
+
+            return (
+              <div
+                key={i}
+                className="mono"
                 style={{
-                  fontWeight: 600,
-                  color: bet.won ? 'var(--positive)' : 'var(--negative)',
+                  fontSize: 12,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '4px 0',
+                  color: 'var(--text-muted)',
                 }}
               >
-                {bet.won ? 'WIN' : 'LOSS'}
-              </span>
-            </div>
-          ))}
+                <span style={{ textTransform: 'capitalize' }}>{bet.game}</span>
+                <span>{lamportsToSol(bet.wagerLamports)} SOL</span>
+                {bet.won ? (
+                  <span style={{ fontWeight: 600, color: 'var(--positive)', textAlign: 'right' }}>
+                    +{lamportsToSol(bet.payoutLamports)} SOL
+                    {multiplier !== null && (
+                      <span style={{ marginLeft: 6, color: 'var(--text-muted)', fontWeight: 400 }}>
+                        {multiplier.toFixed(2)}x
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  <span style={{ fontWeight: 600, color: 'var(--negative)' }}>LOSS</span>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

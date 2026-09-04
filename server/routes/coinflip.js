@@ -215,7 +215,12 @@ router.post('/cashout', async (req, res) => {
       return { payout, newBalance: user.balanceLamports, wagerLamports: bet.wagerLamports, streak };
     });
 
-    betEvents.emit('bet', { game: 'coinflip', wagerLamports: result.wagerLamports.toString(), won: true });
+    betEvents.emit('bet', {
+      game: 'coinflip',
+      wagerLamports: result.wagerLamports.toString(),
+      payoutLamports: result.payout.toString(),
+      won: true,
+    });
 
     res.json({
       streak: result.streak,

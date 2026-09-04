@@ -227,6 +227,7 @@ router.post('/spin', async (req, res) => {
     betEvents.emit('bet', {
       game: 'slots',
       wagerLamports: wager.toString(),
+      payoutLamports: result.totalPayout.toString(),
       won: result.totalPayout > 0n,
     });
   } catch (err) {

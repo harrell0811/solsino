@@ -89,7 +89,12 @@ router.post('/bet', async (req, res) => {
       return { won, roll, payout, newBalanceLamports: updatedUser.balanceLamports };
     });
 
-    betEvents.emit('bet', { game: 'limbo', wagerLamports: wager.toString(), won: result.won });
+    betEvents.emit('bet', {
+      game: 'limbo',
+      wagerLamports: wager.toString(),
+      payoutLamports: result.payout.toString(),
+      won: result.won,
+    });
 
     res.json({
       won: result.won,
