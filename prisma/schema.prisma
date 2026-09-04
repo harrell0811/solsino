@@ -29,6 +29,7 @@ model User {
   deposits      Transaction[] @relation("deposits")
   withdrawals   Transaction[] @relation("withdrawals")
   chatMessages  ChatMessage[]
+  adminAdjustments AdminAdjustment[]
 }
 
 // Active + historical provably-fair seed pairs per user
@@ -101,4 +102,19 @@ model ChatMessage {
   user      User     @relation(fields: [userId], references: [id])
   message   String
   createdAt DateTime @default(now())
+}
+
+// Manual balance credits/debits made by an admin (promo credit, refund,
+// correcting a bug, etc). These don't have a matching on-chain
+// transaction, so they're logged separately from Transaction for a
+// clean audit trail of "why did this balance change".
+model AdminAdjustment {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  amountLamports BigInt   // positive = credit, negative = debit
+  reason         String?
+  createdAt      DateTime @default(now())
+
+  @@index([userId])
 }

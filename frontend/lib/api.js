@@ -168,6 +168,11 @@ export const adminApi = {
     adminRequest(`/api/admin/users/${userId}/chat-ban`, adminKey, { method: 'POST' }),
   chatUnban: (adminKey, userId) =>
     adminRequest(`/api/admin/users/${userId}/chat-unban`, adminKey, { method: 'POST' }),
+  adjustBalance: (adminKey, userId, amountLamports, reason) =>
+    adminRequest(`/api/admin/users/${userId}/adjust-balance`, adminKey, {
+      method: 'POST',
+      body: JSON.stringify({ amountLamports, reason }),
+    }),
 };
 
 export const LAMPORTS_PER_SOL = 1_000_000_000;

@@ -131,6 +131,96 @@ router.post('/users/:id/chat-unban', async (req, res) => {
 });
 
 /**
+ * POST /api/admin/users/:id/adjust-balance
+ * body: { amountLamports, reason }
+ * Manually credits (positive amountLamports) or debits (negative)
+ * a user's custodial balance — promo credit, refunds, correcting a
+ * bug, etc. There's no matching on-chain transaction for this, so
+ * every adjustment is logged in AdminAdjustment as an audit trail
+ * separate from real deposit/withdrawal history.
+ */
+router.post('/users/:id/adjust-balance', async (req, res) => {
+  const { amountLamports, reason } = req.body;
+
+  let amount;
+  try {
+    amount = BigInt(amountLamports);
+  } catch {
+    return res.status(400).json({ error: 'amountLamports must be an integer (as a number or string)' });
+  }
+  if (amount === 0n) {
+    return res.status(400).json({ error: 'amount must be non-zero' });
+  }
+  if (reason !== undefined && reason !== null && typeof reason !== 'string') {
+    return res.status(400).json({ error: 'reason must be a string' });
+  }
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({ where: { id: req.params.id } });
+      if (!user) throw new Error('user not found');
+
+      const newBalance = user.balanceLamports + amount;
+      if (newBalance < 0n) throw new Error('adjustment would take the balance negative');
+
+      const updatedUser = await tx.user.update({
+        where: { id: req.params.id },
+        data: { balanceLamports: newBalance },
+      });
+
+      const adjustment = await tx.adminAdjustment.create({
+        data: {
+          userId: req.params.id,
+          amountLamports: amount,
+          reason: typeof reason === 'string' ? reason.slice(0, 280) : null,
+        },
+      });
+
+      return { updatedUser, adjustment };
+    });
+
+    res.json({
+      userId: result.updatedUser.id,
+      walletAddress: result.updatedUser.walletAddress,
+      balanceLamports: result.updatedUser.balanceLamports.toString(),
+      adjustment: {
+        id: result.adjustment.id,
+        amountLamports: result.adjustment.amountLamports.toString(),
+        reason: result.adjustment.reason,
+        createdAt: result.adjustment.createdAt,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/admin/users/:id/adjustments
+ * History of manual balance adjustments for a given user — shown
+ * under the "Add SOL" control in the dashboard for accountability.
+ */
+router.get('/users/:id/adjustments', async (req, res) => {
+  try {
+    const adjustments = await prisma.adminAdjustment.findMany({
+      where: { userId: req.params.id },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+    res.json({
+      adjustments: adjustments.map((a) => ({
+        id: a.id,
+        amountLamports: a.amountLamports.toString(),
+        reason: a.reason,
+        createdAt: a.createdAt,
+      })),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * GET /api/admin/bets/recent
  * Latest bets across all games for a live activity feed.
  */

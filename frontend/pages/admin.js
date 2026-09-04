@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
-import { adminApi, lamportsToSol } from '../lib/api';
+import { adminApi, lamportsToSol, solToLamports } from '../lib/api';
 
 const STORAGE_KEY = 'solsino_admin_key';
 
@@ -31,6 +31,9 @@ export default function Admin() {
   const [sweeping, setSweeping] = useState(false);
   const [sweepResult, setSweepResult] = useState(null);
   const [banningUserId, setBanningUserId] = useState(null);
+  const [adjustAmounts, setAdjustAmounts] = useState({}); // userId -> input string
+  const [adjustingUserId, setAdjustingUserId] = useState(null);
+  const [adjustFeedback, setAdjustFeedback] = useState(null); // { userId, error? }
 
   useEffect(() => {
     const stored = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
@@ -104,6 +107,29 @@ export default function Admin() {
       setError(err.message);
     } finally {
       setBanningUserId(null);
+    }
+  }
+
+  async function handleAdjustBalance(user, sign) {
+    const raw = adjustAmounts[user.userId];
+    const solAmount = Number(raw);
+    if (!raw || Number.isNaN(solAmount) || solAmount <= 0) {
+      setAdjustFeedback({ userId: user.userId, error: 'Enter a positive SOL amount' });
+      return;
+    }
+
+    const amountLamports = sign * Number(solToLamports(solAmount));
+    setAdjustingUserId(user.userId);
+    setAdjustFeedback(null);
+    try {
+      await adminApi.adjustBalance(adminKey, user.userId, amountLamports, 'Manual admin adjustment');
+      setAdjustAmounts((a) => ({ ...a, [user.userId]: '' }));
+      setAdjustFeedback({ userId: user.userId, success: true });
+      await loadAll(adminKey);
+    } catch (err) {
+      setAdjustFeedback({ userId: user.userId, error: err.message });
+    } finally {
+      setAdjustingUserId(null);
     }
   }
 
@@ -241,7 +267,7 @@ export default function Admin() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
             <div className="panel">
               <h2 style={{ margin: 0, fontSize: 16, marginBottom: 12 }}>Owed to users</h2>
-              <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+              <div style={{ maxHeight: 420, overflowY: 'auto' }}>
                 <table className="mono" style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                   <thead>
                     <tr style={{ textAlign: 'left', color: 'var(--text-muted)' }}>
@@ -249,6 +275,7 @@ export default function Admin() {
                       <th>Balance owed</th>
                       <th>Chat</th>
                       <th></th>
+                      <th>Adjust balance</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -270,6 +297,51 @@ export default function Admin() {
                           >
                             {banningUserId === u.userId ? '…' : u.chatBanned ? 'Unban' : 'Ban'}
                           </button>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              placeholder="SOL"
+                              value={adjustAmounts[u.userId] || ''}
+                              onChange={(e) =>
+                                setAdjustAmounts((a) => ({ ...a, [u.userId]: e.target.value }))
+                              }
+                              style={{ width: 70, padding: '4px 6px', fontSize: 11 }}
+                            />
+                            <button
+                              className="btn btn-positive"
+                              style={{ padding: '4px 8px', fontSize: 11 }}
+                              disabled={adjustingUserId === u.userId}
+                              onClick={() => handleAdjustBalance(u, 1)}
+                              title="Credit this user's balance"
+                            >
+                              +
+                            </button>
+                            <button
+                              className="btn btn-negative"
+                              style={{ padding: '4px 8px', fontSize: 11 }}
+                              disabled={adjustingUserId === u.userId}
+                              onClick={() => handleAdjustBalance(u, -1)}
+                              title="Debit this user's balance"
+                            >
+                              −
+                            </button>
+                          </div>
+                          {adjustFeedback?.userId === u.userId && (
+                            <div
+                              className="mono"
+                              style={{
+                                fontSize: 10,
+                                marginTop: 2,
+                                color: adjustFeedback.error ? 'var(--negative)' : 'var(--positive)',
+                              }}
+                            >
+                              {adjustFeedback.error || 'Balance updated'}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}
