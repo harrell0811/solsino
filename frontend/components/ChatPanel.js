@@ -1,17 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { api, lamportsToSol } from '../lib/api';
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
 }
 
+const POPOVER_WIDTH = 200;
+const POPOVER_GAP = 8;
+
 /**
- * Small hover card showing a chat participant's public stats. Fetches
- * lazily on first hover and caches per userId (via the statsCache ref
- * passed down from ChatPanel) so re-hovering the same name doesn't
- * refire the request every time.
+ * Small hover card showing a chat participant's public stats.
+ *
+ * Rendered via a portal straight onto document.body with
+ * position:fixed, positioned from the hovered username's own
+ * getBoundingClientRect(). Previously this rendered as
+ * position:absolute *inside* the chat log's scrolling container —
+ * which clips anything that pokes outside its own box, so the
+ * popover was getting cut off instead of floating above everything.
+ * A portal sidesteps that entirely: it's not a DOM descendant of the
+ * scrollable list anymore, so nothing can clip it.
  */
-function UserStatsPopover({ userId, statsCache }) {
+function UserStatsPopover({ userId, anchorRect, statsCache }) {
   const [stats, setStats] = useState(statsCache.current[userId] || null);
   const [error, setError] = useState(null);
 
@@ -32,18 +42,29 @@ function UserStatsPopover({ userId, statsCache }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
-  return (
+  if (!anchorRect || typeof document === 'undefined') return null;
+
+  // Prefer popping up ABOVE the username; if there's not enough room
+  // at the top of the viewport, flip to below instead. Clamp
+  // horizontally so it never runs off the right edge of the screen.
+  const spaceAbove = anchorRect.top;
+  const openUpward = spaceAbove > 180;
+  const top = openUpward ? anchorRect.top - POPOVER_GAP : anchorRect.bottom + POPOVER_GAP;
+  const left = Math.min(anchorRect.left, window.innerWidth - POPOVER_WIDTH - 8);
+
+  return createPortal(
     <div
       className="panel"
       style={{
-        position: 'absolute',
-        bottom: '100%',
-        left: 0,
-        marginBottom: 6,
-        width: 200,
+        position: 'fixed',
+        top,
+        left,
+        width: POPOVER_WIDTH,
         padding: 12,
-        zIndex: 20,
+        zIndex: 1000,
         boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+        transform: openUpward ? 'translateY(-100%)' : 'none',
+        pointerEvents: 'none',
       }}
     >
       {error && (
@@ -83,7 +104,8 @@ function UserStatsPopover({ userId, statsCache }) {
           </div>
         </>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -92,12 +114,10 @@ export default function ChatPanel({ socket, userId, username }) {
   const [input, setInput] = useState('');
   const [error, setError] = useState(null);
   const [hoveredUserId, setHoveredUserId] = useState(null);
+  const [anchorRect, setAnchorRect] = useState(null);
   const scrollRef = useRef(null);
   const statsCache = useRef({});
 
-  // Load recent history once on mount so the panel isn't empty on
-  // every fresh page load — previously chat only ever showed messages
-  // sent after you happened to be connected.
   useEffect(() => {
     api
       .getChatHistory()
@@ -132,6 +152,17 @@ export default function ChatPanel({ socket, userId, username }) {
     setInput('');
   }
 
+  function handleNameEnter(e, msgUserId) {
+    if (!msgUserId) return;
+    setAnchorRect(e.currentTarget.getBoundingClientRect());
+    setHoveredUserId(msgUserId);
+  }
+
+  function handleNameLeave() {
+    setHoveredUserId(null);
+    setAnchorRect(null);
+  }
+
   return (
     <div className="panel" style={{ display: 'flex', flexDirection: 'column', height: 320 }}>
       <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600 }}>Chat</h2>
@@ -142,24 +173,23 @@ export default function ChatPanel({ socket, userId, username }) {
         )}
         {messages.map((m, i) => (
           <div key={i} style={{ fontSize: 13, marginBottom: 6, lineHeight: 1.4 }}>
-            <span style={{ position: 'relative', display: 'inline-block' }}>
-              <span
-                className="mono"
-                style={{ color: 'var(--brand)', cursor: m.userId ? 'pointer' : 'default' }}
-                onMouseEnter={() => m.userId && setHoveredUserId(m.userId)}
-                onMouseLeave={() => setHoveredUserId(null)}
-              >
-                {m.username || m.userId?.slice(0, 6) || 'anon'}
-              </span>
-              {hoveredUserId === m.userId && m.userId && (
-                <UserStatsPopover userId={m.userId} statsCache={statsCache} />
-              )}
+            <span
+              className="mono"
+              style={{ color: 'var(--brand)', cursor: m.userId ? 'pointer' : 'default' }}
+              onMouseEnter={(e) => handleNameEnter(e, m.userId)}
+              onMouseLeave={handleNameLeave}
+            >
+              {m.username || m.userId?.slice(0, 6) || 'anon'}
             </span>
             <span style={{ color: 'var(--text-muted)' }}>: </span>
             <span>{m.message}</span>
           </div>
         ))}
       </div>
+
+      {hoveredUserId && anchorRect && (
+        <UserStatsPopover userId={hoveredUserId} anchorRect={anchorRect} statsCache={statsCache} />
+      )}
 
       <div style={{ display: 'flex', gap: 8 }}>
         <input
