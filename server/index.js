@@ -17,6 +17,8 @@ const adminRoutes = require('./routes/admin');
 const limboRoutes = require('./routes/limbo');
 const dragonTowerRoutes = require('./routes/dragonTower');
 const chatRoutes = require('./routes/chat');
+const blackjackRoutes = require('./routes/blackjack');
+const kenoRoutes = require('./routes/keno');
 const crashEngine = require('./crashEngine');
 const { startDepositWatcher } = require('./depositWatcher');
 
@@ -32,6 +34,8 @@ app.use('/api/games/crash', crashRoutes);
 app.use('/api/games/slots', slotsRoutes);
 app.use('/api/games/limbo', limboRoutes);
 app.use('/api/games/dragontower', dragonTowerRoutes);
+app.use('/api/games/blackjack', blackjackRoutes);
+app.use('/api/games/keno', kenoRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);

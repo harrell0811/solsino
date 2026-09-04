@@ -17,6 +17,8 @@ import ChatPanel from '../components/ChatPanel';
 import BetTicker from '../components/BetTicker';
 import ProfilePanel from '../components/ProfilePanel';
 import FairnessPanel from '../components/FairnessPanel';
+import BlackjackGame from '../components/BlackjackGame';
+import KenoGame from '../components/KenoGame';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -275,6 +277,12 @@ export default function Home() {
               <span className="game-tab-icon">🐉</span>
               Dragon Tower
             </button>
+            <button className={`game-tab game-tab-blackjack ${activeGame === 'blackjack' ? 'game-tab-active' : ''}`} onClick={() => setActiveGame('blackjack')}>
+              <span className="game-tab-icon">🃏</span>Blackjack
+            </button>
+            <button className={`game-tab game-tab-keno ${activeGame === 'keno' ? 'game-tab-active' : ''}`} onClick={() => setActiveGame('keno')}>
+              <span className="game-tab-icon">🔢</span>Keno
+            </button>
           </div>
 
           {activeGame === 'coinflip' && (
@@ -320,6 +328,8 @@ export default function Home() {
               onBalanceChange={handleBalanceChange}
             />
           )}
+          {activeGame === 'blackjack' && <BlackjackGame userId={user?.userId} balanceLamports={user?.balanceLamports} onBalanceChange={handleBalanceChange} />}
+          {activeGame === 'keno' && <KenoGame userId={user?.userId} balanceLamports={user?.balanceLamports} onBalanceChange={handleBalanceChange} />}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -332,8 +342,9 @@ export default function Home() {
         </div>
       </div>
 
-      <footer style={{ textAlign: 'center', padding: '32px 0 16px', color: 'var(--text-muted)', fontSize: 12 }}>
-        Ran from Costa Rica
+      <footer className="legal-footer">
+        <div>Devnet demo only — no real-money play.</div>
+        <div>The user also attests that they are not a resident of or located at: USA, United Kingdom, France, Germany, Spain, Netherlands or any other blacklisted or restricted jurisdiction where gambling may be illegal. It is your responsibility to ensure that the use of the service is lawful in your country.</div>
       </footer>
     </div>
   );

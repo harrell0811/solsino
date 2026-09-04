@@ -140,6 +140,21 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ userId, wagerLamports }),
     }),
+
+  dealBlackjack: (userId, wagerLamports) =>
+    request('/api/games/blackjack/deal', { method: 'POST', body: JSON.stringify({ userId, wagerLamports }) }),
+  hitBlackjack: (userId, gameId) =>
+    request('/api/games/blackjack/hit', { method: 'POST', body: JSON.stringify({ userId, gameId }) }),
+  standBlackjack: (userId, gameId) =>
+    request('/api/games/blackjack/stand', { method: 'POST', body: JSON.stringify({ userId, gameId }) }),
+  doubleBlackjack: (userId, gameId) =>
+    request('/api/games/blackjack/double', { method: 'POST', body: JSON.stringify({ userId, gameId }) }),
+  splitBlackjack: (userId, gameId) =>
+    request('/api/games/blackjack/split', { method: 'POST', body: JSON.stringify({ userId, gameId }) }),
+  insureBlackjack: (userId, gameId) =>
+    request('/api/games/blackjack/insurance', { method: 'POST', body: JSON.stringify({ userId, gameId }) }),
+  playKeno: (userId, wagerLamports, picks) =>
+    request('/api/games/keno/play', { method: 'POST', body: JSON.stringify({ userId, wagerLamports, picks }) }),
 };
 
 export const adminApi = {
