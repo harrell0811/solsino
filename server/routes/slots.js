@@ -248,12 +248,18 @@ router.post('/spin', async (req, res) => {
       newBalanceLamports: result.newBalance.toString(),
     });
 
-    betEvents.emit('bet', {
-      game: 'slots',
-      wagerLamports: wager.toString(),
-      payoutLamports: result.totalPayout.toString(),
-      won: result.totalPayout > 0n,
-    });
+    // The slot response is intentionally returned immediately so the client
+    // can animate each reel. Hold the public ticker event until that reveal
+    // has had time to finish, preventing the outcome from being shown first.
+    const tickerDelayMs = Math.max(3200, result.spins.length * 4200);
+    setTimeout(() => {
+      betEvents.emit('bet', {
+        game: 'slots',
+        wagerLamports: wager.toString(),
+        payoutLamports: result.totalPayout.toString(),
+        won: result.totalPayout > 0n,
+      });
+    }, tickerDelayMs);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

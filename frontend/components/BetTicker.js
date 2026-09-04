@@ -23,6 +23,7 @@ export default function BetTicker({ socket }) {
 
   return (
     <div className="panel">
+      <div className="session-title">This session</div>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Total bets</div>
