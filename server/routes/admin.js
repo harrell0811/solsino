@@ -81,18 +81,52 @@ router.get('/users', async (req, res) => {
     const users = await prisma.user.findMany({
       orderBy: { balanceLamports: 'desc' },
       take: 200,
-      select: { id: true, walletAddress: true, balanceLamports: true, createdAt: true },
+      select: { id: true, walletAddress: true, displayName: true, balanceLamports: true, chatBanned: true, createdAt: true },
     });
     res.json({
       users: users.map((u) => ({
         userId: u.id,
         walletAddress: u.walletAddress,
+        displayName: u.displayName,
         balanceLamports: u.balanceLamports.toString(),
+        chatBanned: u.chatBanned,
         createdAt: u.createdAt,
       })),
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /api/admin/users/:id/chat-ban
+ * POST /api/admin/users/:id/chat-unban
+ * Silences (or restores) a player in chat. Doesn't touch their
+ * balance or ability to place bets — chat-only.
+ */
+router.post('/users/:id/chat-ban', async (req, res) => {
+  try {
+    const user = await prisma.user.update({
+      where: { id: req.params.id },
+      data: { chatBanned: true },
+      select: { id: true, walletAddress: true, chatBanned: true },
+    });
+    res.json({ userId: user.id, walletAddress: user.walletAddress, chatBanned: user.chatBanned });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.post('/users/:id/chat-unban', async (req, res) => {
+  try {
+    const user = await prisma.user.update({
+      where: { id: req.params.id },
+      data: { chatBanned: false },
+      select: { id: true, walletAddress: true, chatBanned: true },
+    });
+    res.json({ userId: user.id, walletAddress: user.walletAddress, chatBanned: user.chatBanned });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 

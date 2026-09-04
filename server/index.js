@@ -4,6 +4,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
+const { PrismaClient } = require('@prisma/client');
 
 const coinflipRoutes = require('./routes/coinflip');
 const seedRoutes = require('./routes/seeds');
@@ -31,6 +32,7 @@ app.use('/api/admin', adminRoutes);
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
+const prisma = new PrismaClient();
 
 // Running totals for the "total bets" ticker (swap for a Redis
 // counter once you have multiple server instances)
@@ -49,9 +51,36 @@ io.on('connection', (socket) => {
   // on actual transitions.
   socket.emit('crash:state', crashEngine.getPublicState());
 
-  socket.on('chat:message', ({ userId, username, message }) => {
+  socket.on('chat:message', async ({ userId, username, message }) => {
     if (!message || message.length > 300) return;
-    io.emit('chat:message', { userId, username, message, at: Date.now() });
+
+    // Anonymous / not-yet-connected spectators can still chat under
+    // whatever name the client sent — there's no account to check.
+    if (!userId) {
+      io.emit('chat:message', { userId: null, username: username || 'anon', message, at: Date.now() });
+      return;
+    }
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { displayName: true, walletAddress: true, chatBanned: true },
+      });
+
+      if (!user) return;
+      if (user.chatBanned) {
+        socket.emit('chat:error', { message: 'You have been banned from chat.' });
+        return;
+      }
+
+      // Authoritative name comes from the account, not whatever the client
+      // sent — otherwise anyone could type any display name into the
+      // socket payload and impersonate another player in chat.
+      const resolvedUsername = user.displayName || user.walletAddress.slice(0, 6);
+      io.emit('chat:message', { userId, username: resolvedUsername, message, at: Date.now() });
+    } catch (err) {
+      console.error('chat:message error:', err);
+    }
   });
 });
 

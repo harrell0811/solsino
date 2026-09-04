@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Head from 'next/head';
+import Image from 'next/image';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import ConnectWalletButton from '../components/ConnectWalletButton';
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
@@ -114,7 +115,8 @@ export default function Home() {
         <meta name="description" content="Solsino — a Solana devnet casino: coinflip, mines, and crash." />
       </Head>
       <header className="app-header">
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Image src="/logo.png" alt="Solsino" width={40} height={40} style={{ borderRadius: '50%' }} priority />
           <h1
             className="display-font"
             style={{
@@ -284,7 +286,11 @@ export default function Home() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           <BetTicker socket={socket} />
-          <ChatPanel socket={socket} username={publicKey ? publicKey.toString().slice(0, 6) : null} />
+          <ChatPanel
+            socket={socket}
+            userId={user?.userId}
+            username={user?.displayName || (publicKey ? publicKey.toString().slice(0, 6) : null)}
+          />
         </div>
       </div>
     </div>

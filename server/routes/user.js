@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const { generateServerSeed, hashServerSeed, generateClientSeed } = require('../provablyFair');
+const { containsProfanity } = require('../profanityFilter');
 
 const prisma = new PrismaClient();
 
@@ -80,6 +81,9 @@ router.patch('/:id/profile', async (req, res) => {
   const trimmed = typeof displayName === 'string' ? displayName.trim() : null;
   if (trimmed && trimmed.length > 24) {
     return res.status(400).json({ error: 'displayName must be 24 characters or fewer' });
+  }
+  if (trimmed && containsProfanity(trimmed)) {
+    return res.status(400).json({ error: 'That display name isn\'t allowed — please choose another.' });
   }
 
   try {

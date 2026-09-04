@@ -111,6 +111,10 @@ export const adminApi = {
   sweeps: (adminKey) => adminRequest('/api/admin/sweeps', adminKey),
   sweepProfits: (adminKey) =>
     adminRequest('/api/wallet/sweep-profits', adminKey, { method: 'POST' }),
+  chatBan: (adminKey, userId) =>
+    adminRequest(`/api/admin/users/${userId}/chat-ban`, adminKey, { method: 'POST' }),
+  chatUnban: (adminKey, userId) =>
+    adminRequest(`/api/admin/users/${userId}/chat-unban`, adminKey, { method: 'POST' }),
 };
 
 export const LAMPORTS_PER_SOL = 1_000_000_000;

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-export default function ChatPanel({ socket, username }) {
+export default function ChatPanel({ socket, userId, username }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [error, setError] = useState(null);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -10,8 +11,15 @@ export default function ChatPanel({ socket, username }) {
     function onMessage(msg) {
       setMessages((prev) => [...prev.slice(-49), msg]);
     }
+    function onError(err) {
+      setError(err.message);
+    }
     socket.on('chat:message', onMessage);
-    return () => socket.off('chat:message', onMessage);
+    socket.on('chat:error', onError);
+    return () => {
+      socket.off('chat:message', onMessage);
+      socket.off('chat:error', onError);
+    };
   }, [socket]);
 
   useEffect(() => {
@@ -20,7 +28,8 @@ export default function ChatPanel({ socket, username }) {
 
   function send() {
     if (!input.trim() || !socket) return;
-    socket.emit('chat:message', { username: username || 'anon', message: input.trim() });
+    setError(null);
+    socket.emit('chat:message', { userId: userId || null, username: username || 'anon', message: input.trim() });
     setInput('');
   }
 
@@ -56,6 +65,11 @@ export default function ChatPanel({ socket, username }) {
           Send
         </button>
       </div>
+      {error && (
+        <p className="mono" style={{ fontSize: 11, color: 'var(--negative)', marginTop: 6, marginBottom: 0 }}>
+          {error}
+        </p>
+      )}
     </div>
   );
 }

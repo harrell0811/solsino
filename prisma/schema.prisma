@@ -18,6 +18,12 @@ model User {
   // equivalent as BigInt to avoid float rounding issues)
   balanceLamports BigInt @default(0)
 
+  displayName   String?
+
+  // Set by an admin to silence a player in chat without touching their
+  // balance or betting ability — see /api/admin/users/:id/chat-ban.
+  chatBanned    Boolean  @default(false)
+
   seedPairs     SeedPair[]
   bets          Bet[]
   deposits      Transaction[] @relation("deposits")

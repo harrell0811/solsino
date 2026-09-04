@@ -30,6 +30,7 @@ export default function Admin() {
   const [error, setError] = useState(null);
   const [sweeping, setSweeping] = useState(false);
   const [sweepResult, setSweepResult] = useState(null);
+  const [banningUserId, setBanningUserId] = useState(null);
 
   useEffect(() => {
     const stored = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
@@ -87,6 +88,22 @@ export default function Admin() {
       setSweepResult({ error: err.message });
     } finally {
       setSweeping(false);
+    }
+  }
+
+  async function handleToggleChatBan(user) {
+    setBanningUserId(user.userId);
+    try {
+      if (user.chatBanned) {
+        await adminApi.chatUnban(adminKey, user.userId);
+      } else {
+        await adminApi.chatBan(adminKey, user.userId);
+      }
+      await loadAll(adminKey);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBanningUserId(null);
     }
   }
 
@@ -230,13 +247,30 @@ export default function Admin() {
                     <tr style={{ textAlign: 'left', color: 'var(--text-muted)' }}>
                       <th style={{ padding: '6px 0' }}>Wallet</th>
                       <th>Balance owed</th>
+                      <th>Chat</th>
+                      <th></th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.map((u) => (
                       <tr key={u.userId} style={{ borderTop: '1px solid var(--border)' }}>
-                        <td style={{ padding: '6px 0' }}>{u.walletAddress.slice(0, 6)}…{u.walletAddress.slice(-4)}</td>
+                        <td style={{ padding: '6px 0' }}>
+                          {u.displayName || `${u.walletAddress.slice(0, 6)}…${u.walletAddress.slice(-4)}`}
+                        </td>
                         <td>{lamportsToSol(u.balanceLamports)} SOL</td>
+                        <td style={{ color: u.chatBanned ? 'var(--negative)' : 'var(--positive)' }}>
+                          {u.chatBanned ? 'Banned' : 'OK'}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <button
+                            className={`btn ${u.chatBanned ? 'btn-positive' : 'btn-negative'}`}
+                            style={{ padding: '4px 10px', fontSize: 11 }}
+                            disabled={banningUserId === u.userId}
+                            onClick={() => handleToggleChatBan(u)}
+                          >
+                            {banningUserId === u.userId ? '…' : u.chatBanned ? 'Unban' : 'Ban'}
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
