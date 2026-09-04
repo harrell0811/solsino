@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { api, solToLamports, lamportsToSol } from '../lib/api';
 import QuickBetButtons from './QuickBetButtons';
 import { sound } from '../lib/sound';
@@ -9,6 +9,18 @@ const COL_ROLL_MS = 480; // how long a column keeps rolling once started, before
 const COL_STOP_STAGGER_MS = 150; // delay between each successive column stopping
 const SYMBOL_CYCLE_MS = 70; // how often a rolling column's symbols change
 const POST_REVEAL_PAUSE_MS = 700;
+const WIN_BANNER_MS = 2400; // how long the win popup stays on screen before clearing
+
+// Row index at each of the 5 columns for each of the 5 paylines —
+// mirrors server/routes/slots.js exactly, since this drives both the
+// cell-highlight check AND the drawn payline overlay.
+const PAYLINES = [
+  [1, 1, 1, 1, 1],
+  [0, 0, 0, 0, 0],
+  [2, 2, 2, 2, 2],
+  [0, 1, 2, 1, 0],
+  [2, 1, 0, 1, 2],
+];
 
 function randomGrid() {
   return Array.from({ length: 5 }, () =>
@@ -38,8 +50,17 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
   const [finalResult, setFinalResult] = useState(null);
   const [celebrate, setCelebrate] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [effectsEnabled, setEffectsEnabled] = useState(true);
+  const [winBanner, setWinBanner] = useState(null); // { multiplier, payoutLamports }
   const tickIntervalRef = useRef(null);
   const cycleIntervalsRef = useRef([null, null, null, null, null]);
+  const winBannerTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (winBannerTimeoutRef.current) clearTimeout(winBannerTimeoutRef.current);
+    };
+  }, []);
 
   // Autobet
   const [autobetSpins, setAutobetSpins] = useState('10');
@@ -68,6 +89,8 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
    */
   async function revealSpin(spinData) {
     setLitLines([]);
+    if (winBannerTimeoutRef.current) clearTimeout(winBannerTimeoutRef.current);
+    setWinBanner(null);
     let suspenseTriggered = false;
 
     tickIntervalRef.current = setInterval(() => play(sound.reelTick), 90);
@@ -132,6 +155,15 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
       const wagerLamports = BigInt(solToLamports(wager));
       if (payout > wagerLamports * 5n) play(sound.bigWin);
       else play(sound.smallWin);
+
+      if (effectsEnabled && payout > 0n) {
+        if (winBannerTimeoutRef.current) clearTimeout(winBannerTimeoutRef.current);
+        setWinBanner({
+          multiplier: Number(payout) / Number(wagerLamports),
+          payoutLamports: spinData.payoutLamports,
+        });
+        winBannerTimeoutRef.current = setTimeout(() => setWinBanner(null), WIN_BANNER_MS);
+      }
     }
 
     await wait(POST_REVEAL_PAUSE_MS);
@@ -231,9 +263,19 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
     <div className="panel slot-machine">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Solsino Slots</h2>
-        <button className="btn" style={{ fontSize: 11, padding: '4px 10px' }} onClick={() => setMuted((m) => !m)}>
-          {muted ? '🔇' : '🔊'}
-        </button>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button
+            className="btn"
+            style={{ fontSize: 11, padding: '4px 10px' }}
+            onClick={() => setEffectsEnabled((e) => !e)}
+            title="Toggle the payline draw + win popup"
+          >
+            {effectsEnabled ? '✨ Effects On' : '✨ Effects Off'}
+          </button>
+          <button className="btn" style={{ fontSize: 11, padding: '4px 10px' }} onClick={() => setMuted((m) => !m)}>
+            {muted ? '🔇' : '🔊'}
+          </button>
+        </div>
       </div>
 
       {statusText && <div className="slot-bonus-banner">{statusText}</div>}
@@ -243,16 +285,7 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
           {grid.map((col, colIdx) => (
             <div key={colIdx} className={`slot-col ${spinningCols[colIdx] ? 'slot-col-spinning' : ''}`}>
               {col.map((emoji, rowIdx) => {
-                const isLit = litLines.some((lineIdx) => {
-                  const lines = [
-                    [1, 1, 1, 1, 1],
-                    [0, 0, 0, 0, 0],
-                    [2, 2, 2, 2, 2],
-                    [0, 1, 2, 1, 0],
-                    [2, 1, 0, 1, 2],
-                  ];
-                  return lines[lineIdx][colIdx] === rowIdx;
-                });
+                const isLit = litLines.some((lineIdx) => PAYLINES[lineIdx][colIdx] === rowIdx);
                 return (
                   <div key={rowIdx} className={`slot-cell ${isLit ? 'slot-cell-lit' : ''} ${bonusActive && emoji === '⭐' ? 'slot-cell-sticky' : ''}`}>
                     {emoji}
@@ -261,7 +294,34 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
               })}
             </div>
           ))}
+
+          {effectsEnabled && litLines.length > 0 && (
+            <svg className="slot-payline-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
+              {litLines.map((lineIdx) => {
+                const rows = PAYLINES[lineIdx];
+                const points = rows
+                  .map((row, col) => `${((col + 0.5) / 5) * 100},${((row + 0.5) / 3) * 100}`)
+                  .join(' ');
+                return (
+                  <polyline
+                    key={lineIdx}
+                    points={points}
+                    pathLength="100"
+                    className="slot-payline-stroke"
+                    style={{ animationDelay: `${lineIdx * 0.05}s` }}
+                  />
+                );
+              })}
+            </svg>
+          )}
         </div>
+
+        {effectsEnabled && winBanner && (
+          <div className="slot-win-banner">
+            <div className="slot-win-banner-multiplier">{winBanner.multiplier.toFixed(2)}×</div>
+            <div className="slot-win-banner-amount">+{lamportsToSol(winBanner.payoutLamports)} SOL</div>
+          </div>
+        )}
 
         {celebrate && (
           <div className="slot-confetti">

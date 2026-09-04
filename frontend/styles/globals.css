@@ -535,9 +535,102 @@ input:hover {
 }
 
 .slot-grid {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 6px;
+}
+
+.slot-payline-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 2;
+}
+
+.slot-payline-stroke {
+  fill: none;
+  stroke: var(--positive);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 3px rgba(20, 241, 149, 0.9)) drop-shadow(0 0 9px rgba(20, 241, 149, 0.5));
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: slot-payline-draw 0.45s ease forwards, slot-payline-pulse 0.9s ease-in-out 0.45s infinite alternate;
+}
+
+@keyframes slot-payline-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes slot-payline-pulse {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.slot-win-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  pointer-events: none;
+  text-align: center;
+  padding: 14px 30px;
+  border-radius: 10px;
+  background: rgba(10, 11, 15, 0.9);
+  border: 1px solid var(--positive);
+  box-shadow: 0 0 30px rgba(20, 241, 149, 0.45);
+  animation: slot-win-banner-pop 0.3s cubic-bezier(0.2, 0.8, 0.3, 1.3), slot-win-banner-fade 0.4s ease 1.8s forwards;
+}
+
+.slot-win-banner-multiplier {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--positive);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.slot-win-banner-amount {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  color: var(--text);
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+@keyframes slot-win-banner-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slot-win-banner-fade {
+  to {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.92);
+  }
 }
 
 .slot-col {
