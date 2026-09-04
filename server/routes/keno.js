@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const { getResults } = require('../provablyFair');
 const betEvents = require('../events');
 const router = express.Router(); const prisma = new PrismaClient();
+<<<<<<< HEAD
 // A smaller selection is harder to hit, so it receives a larger multiplier.
 // The boost is applied to the hit-based table rather than just changing the
 // displayed odds, making it part of the authoritative server result.
@@ -10,6 +11,9 @@ const PAYOUTS = [0, 1, 2, 5, 12, 30, 80, 200, 500, 1200, 3000];
 function selectionBoost(selectionCount) {
   return Math.max(0.35, (11 - selectionCount) / 3);
 }
+=======
+const PAYOUTS = [0, 0, 0, 1, 2, 5, 15, 50, 250, 1000, 5000];
+>>>>>>> ee2e96e5908494b37cc3fd9feb09e440dec7fcb6
 
 router.post('/play', async (req, res) => {
   const { userId, wagerLamports, picks } = req.body;
@@ -22,9 +26,13 @@ router.post('/play', async (req, res) => {
       const seedPair = await tx.seedPair.findFirst({ where: { userId, active: true } }); if (!seedPair) throw new Error('no active seed pair');
       const floats = getResults(seedPair.serverSeed, seedPair.clientSeed, seedPair.nonce, 60); const drawn = [];
       for (const f of floats) { const n = Math.floor(f * 40) + 1; if (!drawn.includes(n)) drawn.push(n); if (drawn.length === 10) break; }
+<<<<<<< HEAD
       const hits = cleaned.filter((n) => drawn.includes(n));
       const multiplier = Number((PAYOUTS[hits.length] * selectionBoost(cleaned.length)).toFixed(2));
       const payout = BigInt(Math.floor(Number(wager) * multiplier));
+=======
+      const hits = cleaned.filter((n) => drawn.includes(n)); const multiplier = PAYOUTS[hits.length]; const payout = BigInt(Math.floor(Number(wager) * multiplier));
+>>>>>>> ee2e96e5908494b37cc3fd9feb09e440dec7fcb6
       const updated = await tx.user.update({ where: { id: userId }, data: { balanceLamports: { increment: payout - wager } } });
       await tx.bet.create({ data: { userId, seedPairId: seedPair.id, nonce: seedPair.nonce, game: 'keno', wagerLamports: wager, payoutLamports: payout, choice: { picks: cleaned }, result: { drawn, hits, multiplier }, won: payout > wager } });
       await tx.seedPair.update({ where: { id: seedPair.id }, data: { nonce: { increment: 1 } } });
@@ -33,7 +41,11 @@ router.post('/play', async (req, res) => {
     betEvents.emit('bet', { game: 'keno', wagerLamports: wager.toString(), payoutLamports: result.payout.toString(), won: result.payout > wager });
     // Do not spread the internal result: it carries BigInt values which
     // JSON.stringify cannot serialize.
+<<<<<<< HEAD
     res.json({ drawn: result.drawn, hits: result.hits, multiplier: result.multiplier, selectionBoost: selectionBoost(cleaned.length), payoutLamports: result.payout.toString(), newBalanceLamports: result.newBalanceLamports.toString() });
+=======
+    res.json({ drawn: result.drawn, hits: result.hits, multiplier: result.multiplier, payoutLamports: result.payout.toString(), newBalanceLamports: result.newBalanceLamports.toString() });
+>>>>>>> ee2e96e5908494b37cc3fd9feb09e440dec7fcb6
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 module.exports = router;
