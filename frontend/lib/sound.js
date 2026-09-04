@@ -53,6 +53,16 @@ export const sound = {
       tone({ freq, duration: 0.2, delay: i * 0.1, gain: 0.14, type: 'sawtooth' })
     );
   },
+  nearWin: () => {
+    [392, 494, 587, 740].forEach((freq, i) =>
+      tone({ freq, duration: 0.32, delay: i * 0.13, gain: 0.12, type: 'triangle' })
+    );
+  },
+  suspenseRelease: () => {
+    [520, 440, 330].forEach((freq, i) =>
+      tone({ freq, duration: 0.18, delay: i * 0.08, gain: 0.08, type: 'sine' })
+    );
+  },
   lose: () => tone({ freq: 140, duration: 0.2, type: 'sine', gain: 0.08 }),
   countdownTick: () => tone({ freq: 660, duration: 0.05, type: 'square', gain: 0.07 }),
   liftoff: () => {

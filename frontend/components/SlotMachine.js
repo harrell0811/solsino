@@ -68,6 +68,7 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
    */
   async function revealSpin(spinData) {
     setLitLines([]);
+    let suspenseTriggered = false;
 
     tickIntervalRef.current = setInterval(() => play(sound.reelTick), 90);
 
@@ -102,10 +103,28 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
         return next;
       });
       play(sound.reelStop);
+      // When two bonus symbols have landed, hold the remaining reels a
+      // little longer. It creates a real anticipation beat without ever
+      // changing the server-provided outcome.
+      const landedBonusSymbols = spinData.grid
+        .slice(0, col + 1)
+        .flat()
+        .filter((symbol) => symbol === '🎰').length;
+      if (landedBonusSymbols >= 2 && col < 4) {
+        suspenseTriggered = true;
+        setStatusText('TWO BONUS SYMBOLS — HOLD ON…');
+        play(sound.nearWin);
+        await wait(900 + (4 - col) * 220);
+      }
       await wait(COL_STOP_STAGGER_MS);
     }
 
     clearInterval(tickIntervalRef.current);
+    if (suspenseTriggered && !spinData.lineResults.length) {
+      // A soft release sound makes the near-miss feel theatrical while the
+      // result panel still truthfully reports the actual payout.
+      play(sound.suspenseRelease);
+    }
 
     if (spinData.lineResults.length > 0) {
       setLitLines(spinData.lineResults.map((r) => r.line));
@@ -116,6 +135,7 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
     }
 
     await wait(POST_REVEAL_PAUSE_MS);
+    if (suspenseTriggered) setStatusText(null);
   }
 
   /** Runs one spin end to end. Returns true on success, false on error
