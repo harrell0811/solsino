@@ -85,16 +85,6 @@ function UserStatsPopover({ userId, anchorRect, statsCache }) {
             <span className="mono">{lamportsToSol(stats.totalWageredLamports)} SOL</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
-            <span style={{ color: 'var(--text-muted)' }}>Net profit</span>
-            <span
-              className="mono"
-              style={{ color: Number(stats.netProfitLamports) >= 0 ? 'var(--positive)' : 'var(--negative)' }}
-            >
-              {Number(stats.netProfitLamports) >= 0 ? '+' : ''}
-              {lamportsToSol(stats.netProfitLamports)} SOL
-            </span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
             <span style={{ color: 'var(--text-muted)' }}>Bets placed</span>
             <span className="mono">{stats.betCount}</span>
           </div>
