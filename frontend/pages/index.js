@@ -33,6 +33,7 @@ export default function Home() {
   const [withdrawAmount, setWithdrawAmount] = useState('0.05');
   const [txStatus, setTxStatus] = useState(null);
   const [activeGame, setActiveGame] = useState('coinflip');
+  const [slotsVariant, setSlotsVariant] = useState(null); // null = show the picker
   const [showProfile, setShowProfile] = useState(false);
   const [showFairness, setShowFairness] = useState(false);
 
@@ -259,7 +260,10 @@ export default function Home() {
             </button>
             <button
               className={`game-tab game-tab-slots ${activeGame === 'slots' ? 'game-tab-active' : ''}`}
-              onClick={() => setActiveGame('slots')}
+              onClick={() => {
+                setActiveGame('slots');
+                setSlotsVariant(null); // always land on the picker when the tab itself is clicked
+              }}
             >
               <span className="game-tab-icon">🎰</span>
               Slots
@@ -283,9 +287,6 @@ export default function Home() {
             </button>
             <button className={`game-tab game-tab-keno ${activeGame === 'keno' ? 'game-tab-active' : ''}`} onClick={() => setActiveGame('keno')}>
               <span className="game-tab-icon">🔢</span>Keno
-            </button>
-            <button className={`game-tab game-tab-cluster ${activeGame === 'cluster' ? 'game-tab-active' : ''}`} onClick={() => setActiveGame('cluster')}>
-              <span className="game-tab-icon">👾</span>Neon Cascade
             </button>
           </div>
 
@@ -311,19 +312,46 @@ export default function Home() {
               onBalanceChange={handleBalanceChange}
             />
           )}
-          {activeGame === 'slots' && (
-            <SlotMachine
-              userId={user?.userId}
-              balanceLamports={user?.balanceLamports}
-              onBalanceChange={handleBalanceChange}
-            />
+          {activeGame === 'slots' && !slotsVariant && (
+            <div className="panel slots-picker">
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Choose a slot</h2>
+              <div className="slots-picker-grid">
+                <button className="slots-picker-card" onClick={() => setSlotsVariant('classic')}>
+                  <span className="slots-picker-icon">🎰</span>
+                  <span className="slots-picker-name">Solsino Slots</span>
+                  <span className="slots-picker-blurb">5 reels · 5 paylines · wild &amp; scatter · free-spins bonus</span>
+                </button>
+                <button className="slots-picker-card slots-picker-card-neon" onClick={() => setSlotsVariant('cluster')}>
+                  <span className="slots-picker-icon">👾</span>
+                  <span className="slots-picker-name">Neon Cascade</span>
+                  <span className="slots-picker-blurb">6×5 cluster pays · tumbling wins · climbing multiplier</span>
+                </button>
+              </div>
+            </div>
           )}
-          {activeGame === 'cluster' && (
-            <ClusterSlot
-              userId={user?.userId}
-              balanceLamports={user?.balanceLamports}
-              onBalanceChange={handleBalanceChange}
-            />
+          {activeGame === 'slots' && slotsVariant === 'classic' && (
+            <>
+              <button className="btn" style={{ marginBottom: 12 }} onClick={() => setSlotsVariant(null)}>
+                ← Back to slot select
+              </button>
+              <SlotMachine
+                userId={user?.userId}
+                balanceLamports={user?.balanceLamports}
+                onBalanceChange={handleBalanceChange}
+              />
+            </>
+          )}
+          {activeGame === 'slots' && slotsVariant === 'cluster' && (
+            <>
+              <button className="btn" style={{ marginBottom: 12 }} onClick={() => setSlotsVariant(null)}>
+                ← Back to slot select
+              </button>
+              <ClusterSlot
+                userId={user?.userId}
+                balanceLamports={user?.balanceLamports}
+                onBalanceChange={handleBalanceChange}
+              />
+            </>
           )}
           {activeGame === 'limbo' && (
             <LimboGame

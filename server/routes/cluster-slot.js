@@ -207,7 +207,19 @@ router.post('/spin', async (req, res) => {
       newBalanceLamports: result.newBalance.toString(),
     });
 
-    betEvents.emit('bet', { game: 'cluster_slot', wagerLamports: wager.toString(), won: result.totalPayout > 0n });
+    // Match the slot machine's pattern: hold the public ticker event
+    // until the client's cascade animation would realistically have
+    // finished, instead of broadcasting the outcome before the
+    // player has even seen it play out.
+    const tickerDelayMs = Math.max(1200, result.steps.length * 1050);
+    setTimeout(() => {
+      betEvents.emit('bet', {
+        game: 'cluster_slot',
+        wagerLamports: wager.toString(),
+        payoutLamports: result.totalPayout.toString(),
+        won: result.totalPayout > 0n,
+      });
+    }, tickerDelayMs);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

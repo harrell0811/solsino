@@ -22,6 +22,8 @@ export default function ClusterSlot({ userId, balanceLamports, onBalanceChange }
   const [wager, setWager] = useState('0.02');
   const [grid, setGrid] = useState(() => emptyGrid());
   const [litCells, setLitCells] = useState(new Set());
+  const [poppingCells, setPoppingCells] = useState(new Set());
+  const [fallingCells, setFallingCells] = useState(new Set());
   const [multiplier, setMultiplier] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -71,18 +73,38 @@ export default function ClusterSlot({ userId, balanceLamports, onBalanceChange }
 
         // Highlight the winning cells on the CURRENT (pre-tumble) grid.
         const cellKeys = new Set();
-        clusters.forEach((c) => c.cells.forEach(([col, row]) => cellKeys.add(`${col},${row}`)));
+        const removedPerCol = Array(COLS).fill(0);
+        clusters.forEach((c) =>
+          c.cells.forEach(([col, row]) => {
+            cellKeys.add(`${col},${row}`);
+            removedPerCol[col]++;
+          })
+        );
         setGrid(prevGrid);
         setLitCells(cellKeys);
         setMultiplier(mult);
         play(cellKeys.size > 8 ? sound.bigWin : sound.smallWin);
-        await wait(550);
+        await wait(500);
 
-        // Tumble: clear, drop, refill.
+        // Winning cells pop/shrink out right before the tumble.
+        setPoppingCells(cellKeys);
+        await wait(220);
+
+        // Tumble: clear, drop, refill. The top `removedPerCol[col]`
+        // cells in each column are the freshly-spawned ones — mark
+        // them as "falling" so they visibly drop into place instead
+        // of just appearing.
+        setPoppingCells(new Set());
         setLitCells(new Set());
+        const fallingKeys = new Set();
+        for (let col = 0; col < COLS; col++) {
+          for (let row = 0; row < removedPerCol[col]; row++) fallingKeys.add(`${col},${row}`);
+        }
         setGrid(nextGrid);
+        setFallingCells(fallingKeys);
         play(sound.reelStop);
         await wait(450);
+        setFallingCells(new Set());
       }
 
       const totalPayout = BigInt(res.totalPayoutLamports);
@@ -117,9 +139,18 @@ export default function ClusterSlot({ userId, balanceLamports, onBalanceChange }
           {grid.map((col, colIdx) => (
             <div key={colIdx} className="cluster-col">
               {col.map((emoji, rowIdx) => {
-                const isLit = litCells.has(`${colIdx},${rowIdx}`);
+                const key = `${colIdx},${rowIdx}`;
+                const isLit = litCells.has(key);
+                const isPopping = poppingCells.has(key);
+                const isFalling = fallingCells.has(key);
                 return (
-                  <div key={rowIdx} className={`cluster-cell ${isLit ? 'cluster-cell-lit' : ''}`}>
+                  <div
+                    key={rowIdx}
+                    className={`cluster-cell ${isLit ? 'cluster-cell-lit' : ''} ${
+                      isPopping ? 'cluster-cell-popping' : ''
+                    } ${isFalling ? 'cluster-cell-falling' : ''}`}
+                    style={isFalling ? { animationDelay: `${rowIdx * 45}ms` } : undefined}
+                  >
                     {emoji}
                   </div>
                 );
