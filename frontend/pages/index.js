@@ -13,6 +13,7 @@ import CrashGame from '../components/CrashGame';
 import LimboGame from '../components/LimboGame';
 import DragonTowerGame from '../components/DragonTowerGame';
 import SlotMachine from '../components/SlotMachine';
+import ClusterSlot from '../components/ClusterSlot';
 import ChatPanel from '../components/ChatPanel';
 import BetTicker from '../components/BetTicker';
 import ProfilePanel from '../components/ProfilePanel';
@@ -283,6 +284,9 @@ export default function Home() {
             <button className={`game-tab game-tab-keno ${activeGame === 'keno' ? 'game-tab-active' : ''}`} onClick={() => setActiveGame('keno')}>
               <span className="game-tab-icon">🔢</span>Keno
             </button>
+            <button className={`game-tab game-tab-cluster ${activeGame === 'cluster' ? 'game-tab-active' : ''}`} onClick={() => setActiveGame('cluster')}>
+              <span className="game-tab-icon">👾</span>Neon Cascade
+            </button>
           </div>
 
           {activeGame === 'coinflip' && (
@@ -309,6 +313,13 @@ export default function Home() {
           )}
           {activeGame === 'slots' && (
             <SlotMachine
+              userId={user?.userId}
+              balanceLamports={user?.balanceLamports}
+              onBalanceChange={handleBalanceChange}
+            />
+          )}
+          {activeGame === 'cluster' && (
+            <ClusterSlot
               userId={user?.userId}
               balanceLamports={user?.balanceLamports}
               onBalanceChange={handleBalanceChange}

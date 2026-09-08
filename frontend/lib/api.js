@@ -141,6 +141,12 @@ export const api = {
       body: JSON.stringify({ userId, wagerLamports }),
     }),
 
+  spinClusterSlot: (userId, wagerLamports) =>
+    request('/api/games/cluster-slot/spin', {
+      method: 'POST',
+      body: JSON.stringify({ userId, wagerLamports }),
+    }),
+
   dealBlackjack: (userId, wagerLamports) =>
     request('/api/games/blackjack/deal', { method: 'POST', body: JSON.stringify({ userId, wagerLamports }) }),
   hitBlackjack: (userId, gameId) =>
