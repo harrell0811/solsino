@@ -2,9 +2,10 @@ import { useEffect, useState, useCallback } from 'react';
 import { api, lamportsToSol } from '../lib/api';
 
 /**
- * Small header pill showing accumulated cashback (10% of net losses
- * since the player's last claim). Polls periodically so it visibly
- * ticks up during a session without needing a page refresh.
+ * Small header pill showing accumulated cashback (5% of the
+ * theoretical house edge generated since the player's last claim,
+ * not a share of actual net losses). Polls periodically so it
+ * visibly ticks up during a session without needing a page refresh.
  */
 export default function CashbackWidget({ userId, onBalanceChange }) {
   const [pending, setPending] = useState('0');
@@ -45,7 +46,7 @@ export default function CashbackWidget({ userId, onBalanceChange }) {
       className="btn"
       onClick={claim}
       disabled={!hasPending || claiming}
-      title={error || '10% of your net losses, back in your pocket'}
+      title={error || '5% of the house edge generated on your bets, back in your pocket'}
       style={{
         display: 'flex',
         alignItems: 'center',

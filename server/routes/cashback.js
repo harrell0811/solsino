@@ -4,35 +4,60 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// 10% of a player's net losses since their last claim — noticeable
-// (real money coming back regularly) while remaining comfortably
-// profitable, since it's always a fraction of money the house has
-// already won. Because it's computed on demand rather than accrued
-// as a running balance, there's no separate ledger to keep in sync —
-// just sum (wager - payout) across bets since the checkpoint, floor
-// negatives (wins) at zero so they don't offset other losses, and
-// take 10% of that.
-const CASHBACK_RATE_NUMERATOR = 10n;
+// 5% of the theoretical house edge generated since a player's last
+// claim — i.e. rakeback, not a share of actual net losses. Each
+// game bakes a fixed house edge into its payout math (see the
+// HOUSE_EDGE constant in that game's route file); the "edge
+// revenue" on any single bet is wagerLamports * that game's edge,
+// regardless of whether the bet happened to win or lose. Basing
+// cashback on this theoretical figure — rather than on realized
+// wins/losses — means it isn't at the mercy of a player's short-term
+// variance (a lucky player still earns cashback; the house isn't
+// paying out of pocket on a session it actually lost money on).
+const CASHBACK_RATE_NUMERATOR = 5n;
 const CASHBACK_RATE_DENOMINATOR = 100n;
+
+// Mirrors the HOUSE_EDGE constant declared in each game's own route
+// file. Games not listed here (currently keno and blackjack, whose
+// edge is baked into a fixed paytable / rule set rather than a
+// single multiplier, and crash, which doesn't persist to the Bet
+// table at all yet) fall back to DEFAULT_EDGE — a reasonable
+// industry-average estimate rather than an exact figure for those
+// games specifically.
+const GAME_EDGE = {
+  coinflip: 0.06,
+  mines: 0.03,
+  dragontower: 0.03,
+  limbo: 0.04,
+  slots: 0.06,
+  cluster_slot: 0.06,
+};
+const DEFAULT_EDGE = 0.05;
+
+function edgeRevenueForBet(bet) {
+  const edge = GAME_EDGE[bet.game] ?? DEFAULT_EDGE;
+  // Same float-then-floor pattern used everywhere else edge is applied
+  // (e.g. slots.js), so rounding behaves consistently across the app.
+  return BigInt(Math.floor(Number(bet.wagerLamports) * edge));
+}
 
 // NOTE: this only covers games that persist to the `Bet` table
 // (coinflip, mines, slots, cluster-slot, limbo, dragon tower,
 // blackjack, keno). Crash currently keeps its rounds in memory
-// rather than writing them to the ledger, so crash losses aren't
+// rather than writing them to the ledger, so crash wagers aren't
 // counted here yet.
 async function computePendingCashback(tx, user) {
   const bets = await tx.bet.findMany({
     where: { userId: user.id, createdAt: { gt: user.lastCashbackClaimAt } },
-    select: { wagerLamports: true, payoutLamports: true },
+    select: { wagerLamports: true, game: true },
   });
 
-  let netLoss = 0n;
+  let edgeRevenue = 0n;
   for (const b of bets) {
-    const diff = b.wagerLamports - b.payoutLamports;
-    if (diff > 0n) netLoss += diff; // only count bets that were net losses
+    edgeRevenue += edgeRevenueForBet(b);
   }
 
-  const cashback = (netLoss * CASHBACK_RATE_NUMERATOR) / CASHBACK_RATE_DENOMINATOR;
+  const cashback = (edgeRevenue * CASHBACK_RATE_NUMERATOR) / CASHBACK_RATE_DENOMINATOR;
   return { cashback, betsConsidered: bets.length };
 }
 
@@ -47,7 +72,7 @@ router.get('/status', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'user not found' });
 
     const { cashback } = await computePendingCashback(prisma, user);
-    res.json({ pendingCashbackLamports: cashback.toString(), ratePercent: 10 });
+    res.json({ pendingCashbackLamports: cashback.toString(), ratePercent: 5 });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
