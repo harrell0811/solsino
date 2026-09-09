@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Head from 'next/head';
-import Image from 'next/image';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import ConnectWalletButton from '../components/ConnectWalletButton';
 import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
@@ -21,6 +20,7 @@ import FairnessPanel from '../components/FairnessPanel';
 import BlackjackGame from '../components/BlackjackGame';
 import KenoGame from '../components/KenoGame';
 import CashbackWidget from '../components/CashbackWidget';
+import AnimatedLogo from '../components/AnimatedLogo';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -131,38 +131,29 @@ export default function Home() {
         <meta name="description" content="Solsino — a Solana devnet casino: coinflip, mines, and crash." />
       </Head>
       <header className="app-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Image src="/logo.png" alt="Solsino" width={64} height={64} style={{ borderRadius: '50%' }} priority />
-          <h1
-            className="display-font"
-            style={{
-              margin: 0,
-              fontSize: 24,
-              fontWeight: 800,
-              background: 'linear-gradient(120deg, #9945ff, #14f195)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            Solsino
-          </h1>
+        <div className="brand">
+          <AnimatedLogo size={58} />
+          <div className="brand-text">
+            <h1 className="brand-title">Solsino</h1>
+            <span className="brand-tag">Solana Casino</span>
+          </div>
         </div>
 
         <div className="app-header-right">
           {user && (
-            <div className="mono panel" style={{ padding: '8px 14px', fontSize: 14 }}>
-              {balanceSol} <span style={{ color: 'var(--text-muted)' }}>SOL</span>
+            <div className="balance-pill mono">
+              <span className="balance-value">{balanceSol}</span>
+              <span className="balance-unit">SOL</span>
             </div>
           )}
           {user && <CashbackWidget userId={user.userId} onBalanceChange={handleBalanceChange} />}
           {user && (
-            <button className="btn" onClick={() => setShowFairness(true)}>
-              🎲 Fair
+            <button className="btn btn-ghost" onClick={() => setShowFairness(true)}>
+              <span className="btn-icon">🎲</span> Fair
             </button>
           )}
           {user && (
-            <button className="btn" onClick={() => setShowProfile(true)}>
+            <button className="btn btn-ghost" onClick={() => setShowProfile(true)}>
               {user.displayName || `${user.walletAddress.slice(0, 4)}…${user.walletAddress.slice(-4)}`}
             </button>
           )}

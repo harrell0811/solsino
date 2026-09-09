@@ -1,59 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Orbitron:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Baloo+2:wght@600;700;800&display=swap');
 
 :root {
-  /* Deep space casino palette */
-  --bg: #06070b;
-  --bg-elevated: #0a0c12;
-  --surface: rgba(18, 20, 28, 0.72);
-  --surface-solid: #12141c;
-  --surface-raised: #1a1d28;
-  --surface-hover: #222632;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.12);
-  --border-glow: rgba(153, 69, 255, 0.35);
+  /* Dark base, but with punchy per-game accent colors layered on top —
+     a casino lobby should feel alive, not like a trading terminal. */
+  --bg: #0b0c10;
+  --surface: #16171d;
+  --surface-raised: #1d1f27;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #ececef;
+  --text-muted: #8b8d98;
+  --brand: #9945ff;
+  --brand-dim: rgba(153, 69, 255, 0.15);
+  --positive: #14f195;
+  --positive-dim: rgba(20, 241, 149, 0.12);
+  --negative: #ff5c5c;
+  --negative-dim: rgba(255, 92, 92, 0.12);
+  --radius: 14px;
+  --radius-sm: 10px;
 
-  --text: #f0f1f5;
-  --text-muted: #8a8d9b;
-  --text-dim: #5c5f6e;
-
-  --brand: #a855f7;
-  --brand-bright: #c084fc;
-  --brand-dim: rgba(168, 85, 247, 0.14);
-  --accent: #22d3ee;
-  --accent-dim: rgba(34, 211, 238, 0.12);
-  --positive: #34d399;
-  --positive-dim: rgba(52, 211, 153, 0.12);
-  --negative: #f87171;
-  --negative-dim: rgba(248, 113, 113, 0.12);
-  --gold: #fbbf24;
-
-  --radius: 16px;
-  --radius-sm: 11px;
-  --radius-lg: 22px;
-
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.55);
-  --glow-brand: 0 0 28px rgba(168, 85, 247, 0.35);
-  --glow-accent: 0 0 24px rgba(34, 211, 238, 0.3);
-
-  /* Per-game accents */
+  /* Per-game accent colors, used by the game-tab tiles and each game's
+     own accent touches (buttons, glows) so every game has a distinct
+     identity instead of one flat purple everywhere. */
   --coinflip-a: #ff6fa5;
   --coinflip-b: #ff9a56;
-  --mines-a: #8b5cf6;
-  --mines-b: #5b21b6;
-  --crash-a: #fb923c;
-  --crash-b: #ef4444;
-  --slots-a: #6366f1;
-  --slots-b: #a855f7;
-  --limbo-a: #f43f5e;
-  --limbo-b: #fb923c;
-  --dragontower-a: #10b981;
-  --dragontower-b: #047857;
-  --blackjack-a: #059669;
-  --blackjack-b: #064e3b;
-  --keno-a: #e879f9;
-  --keno-b: #7c3aed;
+  --mines-a: #7b61ff;
+  --mines-b: #4d3dc9;
+  --crash-a: #ff7a45;
+  --crash-b: #ff4d6d;
+  --slots-a: #4d6bff;
+  --slots-b: #7b3dff;
+  --limbo-a: #ff5252;
+  --limbo-b: #ff9142;
+  --dragontower-a: #2ecc71;
+  --dragontower-b: #16794e;
+  --blackjack-a: #1f9d62;
+  --blackjack-b: #075a39;
+  --keno-a: #e55ac8;
+  --keno-b: #7e3df2;
 }
 
 * {
@@ -68,43 +52,14 @@ body {
   color: var(--text);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Subtle animated mesh background */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(168, 85, 247, 0.18), transparent 50%),
-    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(34, 211, 238, 0.1), transparent 45%),
-    radial-gradient(ellipse 50% 30% at 50% 100%, rgba(168, 85, 247, 0.08), transparent 50%),
-    var(--bg);
-  pointer-events: none;
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background-image:
-    radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent);
-  pointer-events: none;
-  opacity: 0.6;
 }
 
 .display-font {
-  font-family: 'Orbitron', 'Inter', sans-serif;
+  font-family: 'Baloo 2', 'Inter', sans-serif;
 }
 
 a {
   color: inherit;
-  text-decoration: none;
 }
 
 .mono {
@@ -125,37 +80,24 @@ input:focus-visible {
 
 input {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  background: var(--surface-solid);
+  background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: var(--radius-sm);
-  padding: 11px 14px;
+  border-radius: var(--radius);
+  padding: 10px 12px;
   font-size: 14px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 input:hover {
   border-color: var(--border-strong);
 }
 
-input:focus {
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3px var(--brand-dim);
-}
-
-/* ---------- Glass panels ---------- */
-
 .panel {
   background: var(--surface);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 22px;
-  box-shadow: var(--shadow-sm);
+  padding: 20px;
 }
-
-/* ---------- Buttons ---------- */
 
 .btn {
   border: 1px solid var(--border-strong);
@@ -165,17 +107,12 @@ input:focus {
   padding: 10px 18px;
   font-size: 14px;
   font-weight: 600;
-  transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
 }
 
 .btn:hover:not(:disabled) {
   border-color: var(--brand);
-  background: var(--surface-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .btn:active:not(:disabled) {
@@ -188,56 +125,35 @@ input:focus {
 }
 
 .btn-brand {
-  background: linear-gradient(135deg, #c084fc, #7c3aed);
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
   border-color: transparent;
   color: white;
-  box-shadow: 0 4px 18px rgba(124, 58, 237, 0.45);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
 }
 
 .btn-brand:hover:not(:disabled) {
-  background: linear-gradient(135deg, #d8b4fe, #8b5cf6);
-  box-shadow: 0 6px 24px rgba(124, 58, 237, 0.6);
-  border-color: transparent;
+  background: linear-gradient(135deg, #b968ff, #8b4dff);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.55);
 }
 
 .btn-positive {
   background: var(--positive-dim);
-  border-color: rgba(52, 211, 153, 0.45);
-  color: var(--positive);
-}
-
-.btn-positive:hover:not(:disabled) {
-  background: rgba(52, 211, 153, 0.2);
   border-color: var(--positive);
-  box-shadow: 0 0 16px rgba(52, 211, 153, 0.25);
+  color: var(--positive);
 }
 
 .btn-negative {
   background: var(--negative-dim);
-  border-color: rgba(248, 113, 113, 0.45);
+  border-color: var(--negative);
   color: var(--negative);
-}
-
-.btn-ghost {
-  background: transparent;
-  border-color: var(--border);
-}
-
-.btn-ghost:hover:not(:disabled) {
-  background: var(--surface-raised);
-  border-color: var(--border-strong);
-}
-
-.btn-icon {
-  font-size: 15px;
 }
 
 /* ---------- Layout ---------- */
 
 .page {
   min-height: 100vh;
-  padding: 20px 28px 40px;
-  max-width: 1240px;
+  padding: 24px 32px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -245,560 +161,120 @@ input:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 28px;
   flex-wrap: wrap;
-  padding: 12px 16px;
-  background: rgba(10, 12, 18, 0.65);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
 }
 
 .app-header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.brand-title {
-  margin: 0;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  background: linear-gradient(120deg, #c084fc 0%, #22d3ee 50%, #34d399 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: brand-shimmer 6s ease infinite;
-}
-
-@keyframes brand-shimmer {
-  0%, 100% { background-position: 0% center; }
-  50% { background-position: 100% center; }
-}
-
-.brand-tag {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.balance-pill {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 9px 16px;
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(34, 211, 238, 0.08));
-  border: 1px solid rgba(168, 85, 247, 0.25);
-  border-radius: 999px;
-  font-size: 14px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.balance-value {
-  font-weight: 700;
-  color: var(--text);
-}
-
-.balance-unit {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--accent);
-  letter-spacing: 0.06em;
 }
 
 .layout-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 22px;
+  gap: 24px;
 }
 
 .deposit-withdraw-row {
   display: flex;
-  gap: 20px;
-}
-
-/* ---------- Animated Logo ---------- */
-
-.logo-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.logo-core {
-  position: relative;
-  z-index: 3;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.12),
-    0 0 20px rgba(168, 85, 247, 0.4),
-    0 4px 16px rgba(0, 0, 0, 0.5);
-  animation: logo-float 4s ease-in-out infinite;
-}
-
-.logo-img {
-  display: block;
-  border-radius: 50%;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.logo-glow {
-  position: absolute;
-  inset: -12px;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    #a855f7,
-    #22d3ee,
-    #34d399,
-    #a855f7
-  );
-  opacity: 0.55;
-  filter: blur(14px);
-  animation: logo-spin 8s linear infinite;
-  z-index: 1;
-}
-
-.logo-ring {
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  border: 1.5px solid transparent;
-  background:
-    linear-gradient(var(--bg), var(--bg)) padding-box,
-    conic-gradient(from 0deg, #a855f7, #22d3ee, transparent 40%, #34d399, #a855f7) border-box;
-  animation: logo-spin 6s linear infinite reverse;
-  z-index: 2;
-  opacity: 0.85;
-}
-
-.logo-spark {
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.8);
-  z-index: 4;
-  opacity: 0;
-}
-
-.logo-spark-1 {
-  top: 8%;
-  right: 12%;
-  animation: spark-pulse 2.4s ease-in-out infinite;
-}
-
-.logo-spark-2 {
-  bottom: 14%;
-  left: 6%;
-  animation: spark-pulse 2.4s ease-in-out 0.8s infinite;
-  background: #22d3ee;
-  box-shadow: 0 0 8px 2px rgba(34, 211, 238, 0.9);
-}
-
-.logo-spark-3 {
-  top: 42%;
-  right: -4%;
-  animation: spark-pulse 2.4s ease-in-out 1.5s infinite;
-  background: #c084fc;
-  box-shadow: 0 0 8px 2px rgba(192, 132, 252, 0.9);
-}
-
-@keyframes logo-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-
-@keyframes logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes spark-pulse {
-  0%, 100% { opacity: 0; transform: scale(0.4); }
-  50% { opacity: 1; transform: scale(1); }
+  gap: 24px;
 }
 
 /* ---------- Game selector tiles ---------- */
 
 .game-tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 
 .game-tab {
   position: relative;
   border: none;
   border-radius: var(--radius-sm);
-  padding: 15px 10px;
-  font-family: 'Orbitron', 'Inter', sans-serif;
+  padding: 16px 10px;
+  font-family: 'Baloo 2', 'Inter', sans-serif;
   font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 0.03em;
+  font-size: 15px;
   color: white;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
   cursor: pointer;
   overflow: hidden;
-  opacity: 0.55;
+  opacity: 0.62;
   transform: scale(0.97);
-  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.game-tab::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, transparent 50%);
-  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .game-tab:hover {
   opacity: 0.85;
-  transform: scale(0.99) translateY(-1px);
 }
 
 .game-tab-active {
   opacity: 1;
   transform: scale(1);
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.4),
-    inset 0 0 0 2px rgba(255, 255, 255, 0.28);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), inset 0 0 0 2px rgba(255, 255, 255, 0.35);
 }
 
 .game-tab-icon {
   display: block;
   font-size: 22px;
-  margin-bottom: 5px;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+  margin-bottom: 4px;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.25));
 }
 
-.game-tab-coinflip { background: linear-gradient(150deg, var(--coinflip-a), var(--coinflip-b)); }
-.game-tab-mines { background: linear-gradient(150deg, var(--mines-a), var(--mines-b)); }
-.game-tab-crash { background: linear-gradient(150deg, var(--crash-a), var(--crash-b)); }
-.game-tab-slots { background: linear-gradient(150deg, var(--slots-a), var(--slots-b)); }
-.game-tab-limbo { background: linear-gradient(150deg, var(--limbo-a), var(--limbo-b)); }
-.game-tab-dragontower { background: linear-gradient(150deg, var(--dragontower-a), var(--dragontower-b)); }
+.game-tab-coinflip {
+  background: linear-gradient(150deg, var(--coinflip-a), var(--coinflip-b));
+}
+
+.game-tab-mines {
+  background: linear-gradient(150deg, var(--mines-a), var(--mines-b));
+}
+
+.game-tab-crash {
+  background: linear-gradient(150deg, var(--crash-a), var(--crash-b));
+}
+
+.game-tab-slots {
+  background: linear-gradient(150deg, var(--slots-a), var(--slots-b));
+}
+
+.game-tab-limbo {
+  background: linear-gradient(150deg, var(--limbo-a), var(--limbo-b));
+}
+
+.game-tab-dragontower {
+  background: linear-gradient(150deg, var(--dragontower-a), var(--dragontower-b));
+}
+
 .game-tab-blackjack { background: linear-gradient(150deg, var(--blackjack-a), var(--blackjack-b)); }
 .game-tab-keno { background: linear-gradient(150deg, var(--keno-a), var(--keno-b)); }
 
-.legal-footer {
-  text-align: center;
-  padding: 36px 0 20px;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.legal-footer div + div {
-  margin: 10px auto 0;
-  max-width: 900px;
-}
-
-.session-title {
-  margin-bottom: 12px;
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  color: var(--text);
-}
-
-.field-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  display: block;
-  margin: 16px 0 6px;
-}
+.legal-footer { text-align: center; padding: 32px 0 16px; color: var(--text-muted); font-size: 12px; line-height: 1.55; }
+.legal-footer div + div { margin: 10px auto 0; max-width: 900px; }
+.session-title { margin-bottom: 12px; font-size: 16px; font-weight: 800; letter-spacing: .02em; color: var(--text); }
+.field-label { font-size: 12px; color: var(--text-muted); display: block; margin: 16px 0 6px; }
 
 /* ---------- Blackjack ---------- */
-.blackjack-table {
-  margin-top: 16px;
-  padding: 18px;
-  min-height: 270px;
-  border-radius: var(--radius);
-  background: radial-gradient(ellipse at center, #13744d, #063d2a);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: inset 0 0 48px rgba(0, 0, 0, 0.35);
-}
-
-.hand-label {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.card-hand {
-  display: flex;
-  gap: 8px;
-  min-height: 72px;
-  padding: 9px 0;
-}
-
-.playing-card,
-.card-placeholder {
-  width: 48px;
-  height: 66px;
-  flex: 0 0 auto;
-  border-radius: 7px;
-  background: #fcfcf9;
-  color: #15151a;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-  padding: 7px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  font-size: 17px;
-  animation: card-deal 0.32s both cubic-bezier(0.2, 0.9, 0.25, 1.3);
-}
-
-.playing-card span {
-  align-self: flex-end;
-  font-size: 18px;
-}
-
-.playing-card-red {
-  color: #df3044;
-}
-
-.card-placeholder {
-  align-items: center;
-  justify-content: center;
-  background: repeating-linear-gradient(45deg, #653ad2, #653ad2 5px, #422096 5px, #422096 10px);
-  color: white;
-}
-
-.blackjack-divider {
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
-  margin: 2px 0 8px;
-}
-
-.blackjack-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.blackjack-actions button {
-  flex: 1;
-}
-
-.blackjack-options {
-  margin-top: 8px;
-}
-
-.blackjack-option-hint {
-  margin-top: 7px;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 11px;
-}
-
-.blackjack-split-hands {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 11px;
-}
-
-.blackjack-split-hands .card-hand {
-  min-height: 56px;
-  padding: 5px 0;
-}
-
-.blackjack-split-hands .playing-card {
-  width: 34px;
-  height: 48px;
-  padding: 5px;
-  font-size: 12px;
-}
-
-.blackjack-split-hands .playing-card span {
-  font-size: 13px;
-}
-
-.blackjack-active-hand {
-  filter: drop-shadow(0 0 6px var(--positive));
-}
-
-.blackjack-result,
-.keno-result {
-  margin-top: 8px;
-  padding: 8px;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: 800;
-  background: rgba(0, 0, 0, 0.18);
-  color: white;
-  animation: result-pop 0.35s ease;
-}
-
-.result-win {
-  color: var(--positive);
-}
-
-.result-lose {
-  color: var(--negative);
-}
-
-@keyframes card-deal {
-  from {
-    opacity: 0;
-    transform: translateY(-22px) rotate(-8deg);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) rotate(0);
-  }
-}
-
-@keyframes result-pop {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  70% {
-    transform: scale(1.06);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
+.blackjack-table { margin-top: 16px; padding: 18px; min-height: 270px; border-radius: var(--radius); background: radial-gradient(ellipse at center, #13744d, #063d2a); border: 1px solid rgba(255,255,255,.16); box-shadow: inset 0 0 48px rgba(0,0,0,.35); }
+.hand-label { color: rgba(255,255,255,.7); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.card-hand { display: flex; gap: 8px; min-height: 72px; padding: 9px 0; }
+.playing-card, .card-placeholder { width: 48px; height: 66px; flex: 0 0 auto; border-radius: 7px; background: #fcfcf9; color: #15151a; box-shadow: 0 4px 10px rgba(0,0,0,.25); padding: 7px; display: flex; flex-direction: column; justify-content: space-between; font-size: 17px; animation: card-deal .32s both cubic-bezier(.2,.9,.25,1.3); }
+.playing-card span { align-self: flex-end; font-size: 18px; }.playing-card-red { color: #df3044; }.card-placeholder { align-items: center; justify-content: center; background: repeating-linear-gradient(45deg,#653ad2,#653ad2 5px,#422096 5px,#422096 10px); color: white; }
+.blackjack-divider { border-top: 1px solid rgba(255,255,255,.18); margin: 2px 0 8px; }.blackjack-actions { display: flex; gap: 12px; margin-top: 16px; }.blackjack-actions button { flex: 1; }.blackjack-options { margin-top: 8px; }.blackjack-option-hint { margin-top: 7px; text-align: center; color: rgba(255,255,255,.6); font-size: 11px; }.blackjack-split-hands { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; color: rgba(255,255,255,.75); font-size: 11px; }.blackjack-split-hands .card-hand { min-height: 56px; padding: 5px 0; }.blackjack-split-hands .playing-card { width: 34px; height: 48px; padding: 5px; font-size: 12px; }.blackjack-split-hands .playing-card span { font-size: 13px; }.blackjack-active-hand { filter: drop-shadow(0 0 6px var(--positive)); }.blackjack-result, .keno-result { margin-top: 8px; padding: 8px; border-radius: 8px; text-align: center; font-weight: 800; background: rgba(0,0,0,.18); color: white; animation: result-pop .35s ease; }.result-win { color: var(--positive); }.result-lose { color: var(--negative); }
+@keyframes card-deal { from { opacity: 0; transform: translateY(-22px) rotate(-8deg); } to { opacity: 1; transform: translateY(0) rotate(0); } } @keyframes result-pop { 0% { transform: scale(.8); opacity: 0; } 70% { transform: scale(1.06); } 100% { transform: scale(1); opacity: 1; } }
 
 /* ---------- Keno ---------- */
-.keno-boost {
-  margin-top: 12px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: rgba(229, 90, 200, 0.1);
-  color: #f7a5e6;
-  font-size: 12px;
-  text-align: center;
-}
-
-.keno-grid {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 7px;
-  margin-top: 12px;
-}
-
-.keno-number {
-  aspect-ratio: 1;
-  border: 1px solid var(--border-strong);
-  border-radius: 8px;
-  background: var(--surface-raised);
-  color: var(--text);
-  font-weight: 700;
-  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-}
-
-.keno-number:hover:not(:disabled) {
-  transform: translateY(-2px);
-  border-color: var(--keno-a);
-}
-
-.keno-picked {
-  background: linear-gradient(135deg, var(--keno-a), var(--keno-b));
-  border-color: transparent;
-  color: white;
-  box-shadow: 0 3px 10px rgba(229, 90, 200, 0.3);
-}
-
-.keno-drawn {
-  animation: keno-ball 0.4s ease both;
-  background: #2b3351;
-}
-
-.keno-hit {
-  background: var(--positive);
-  color: #062116;
-  border-color: var(--positive);
-  box-shadow: 0 0 16px rgba(20, 241, 149, 0.55);
-}
-
-.keno-drawing .keno-number {
-  animation: keno-scan 0.5s ease infinite alternate;
-}
-
-.keno-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.keno-actions button {
-  flex: 1;
-}
-
-.dragon-tower-rows {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 6px;
-  margin-top: 20px;
-  max-height: 390px;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  padding: 2px;
-}
-
-@keyframes keno-ball {
-  from {
-    transform: scale(0.45);
-    opacity: 0.2;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes keno-scan {
-  to {
-    filter: brightness(1.35);
-  }
-}
-
-@media (max-width: 960px) {
-  .game-tabs {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
+.keno-boost { margin-top: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(229,90,200,.1); color: #f7a5e6; font-size: 12px; text-align: center; }.keno-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 7px; margin-top: 12px; }.keno-number { aspect-ratio: 1; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface-raised); color: var(--text); font-weight: 700; transition: transform .15s ease, background .15s ease, box-shadow .15s ease; }.keno-number:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--keno-a); }.keno-picked { background: linear-gradient(135deg,var(--keno-a),var(--keno-b)); border-color: transparent; color: white; box-shadow: 0 3px 10px rgba(229,90,200,.3); }.keno-drawn { animation: keno-ball .4s ease both; background: #2b3351; }.keno-hit { background: var(--positive); color: #062116; border-color: var(--positive); box-shadow: 0 0 16px rgba(20,241,149,.55); }.keno-drawing .keno-number { animation: keno-scan .5s ease infinite alternate; }.keno-actions { display: flex; gap: 8px; margin-top: 16px; }.keno-actions button { flex: 1; }.dragon-tower-rows { display: flex; flex-direction: column-reverse; gap: 6px; margin-top: 20px; max-height: 390px; overflow-y: auto; scroll-behavior: smooth; padding: 2px; }
+@keyframes keno-ball { from { transform: scale(.45); opacity: .2; } to { transform: scale(1); opacity: 1; } } @keyframes keno-scan { to { filter: brightness(1.35); } }
 
 @media (max-width: 860px) {
   .page {
-    padding: 14px 14px 32px;
+    padding: 16px;
   }
 
   .layout-grid {
@@ -813,37 +289,25 @@ input:focus {
   .game-tabs {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .app-header {
-    padding: 10px 12px;
-  }
-
-  .brand-title {
-    font-size: 18px;
-  }
 }
 
-/* Restyle wallet-adapter */
+/* Restyle the wallet-adapter default button to match our palette
+   instead of its stock purple gradient pill. */
 .wallet-adapter-button {
-  background: linear-gradient(135deg, #a855f7, #7c3aed) !important;
-  border-radius: var(--radius-sm) !important;
+  background-color: var(--brand) !important;
+  border-radius: var(--radius) !important;
   height: auto !important;
   padding: 10px 18px !important;
   font-family: 'Inter', sans-serif !important;
   font-size: 14px !important;
-  font-weight: 600 !important;
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4) !important;
-  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
 }
 
 .wallet-adapter-button:hover {
-  background: linear-gradient(135deg, #c084fc, #8b5cf6) !important;
-  box-shadow: 0 6px 22px rgba(124, 58, 237, 0.55) !important;
-  transform: translateY(-1px);
+  background-color: #8535e8 !important;
 }
 
 .wallet-adapter-modal-wrapper {
-  background: var(--surface-solid) !important;
+  background: var(--surface) !important;
 }
 
 /* ---------- Coinflip ---------- */
@@ -1468,20 +932,3 @@ input:focus {
   60% { opacity: 1; }
   100% { transform: translateY(0); opacity: 1; }
 }
-
-/* Scrollbar polish */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
