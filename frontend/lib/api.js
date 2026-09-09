@@ -147,6 +147,14 @@ export const api = {
       body: JSON.stringify({ userId, wagerLamports }),
     }),
 
+  cashbackStatus: (userId) => request(`/api/cashback/status?userId=${userId}`),
+
+  claimCashback: (userId) =>
+    request('/api/cashback/claim', {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    }),
+
   dealBlackjack: (userId, wagerLamports) =>
     request('/api/games/blackjack/deal', { method: 'POST', body: JSON.stringify({ userId, wagerLamports }) }),
   hitBlackjack: (userId, gameId) =>

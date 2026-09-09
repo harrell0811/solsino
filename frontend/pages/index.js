@@ -20,6 +20,7 @@ import ProfilePanel from '../components/ProfilePanel';
 import FairnessPanel from '../components/FairnessPanel';
 import BlackjackGame from '../components/BlackjackGame';
 import KenoGame from '../components/KenoGame';
+import CashbackWidget from '../components/CashbackWidget';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -147,6 +148,7 @@ export default function Home() {
               {balanceSol} <span style={{ color: 'var(--text-muted)' }}>SOL</span>
             </div>
           )}
+          {user && <CashbackWidget userId={user.userId} onBalanceChange={handleBalanceChange} />}
           {user && (
             <button className="btn" onClick={() => setShowFairness(true)}>
               🎲 Fair

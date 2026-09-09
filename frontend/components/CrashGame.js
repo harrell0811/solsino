@@ -250,40 +250,49 @@ export default function CrashGame({ userId, balanceLamports, socket, onBalanceCh
               fill="none"
               stroke={phase === 'crashed' ? 'var(--negative)' : 'var(--positive)'}
               strokeWidth="3"
+              vectorEffect="non-scaling-stroke"
             />
           )}
+          {/* Rocket/boom rendered INSIDE the same SVG, in the same
+              viewBox coordinate space as the path above — this is what
+              keeps it locked exactly to the line's end point no matter
+              how the container gets stretched or resized. Rendering it
+              as a separate absolutely-positioned HTML element (the old
+              approach) meant its raw viewBox numbers were being read as
+              literal CSS pixels, which only lined up by coincidence. */}
+          {phase === 'running' && points.length > 0 && (
+            <text
+              x={lastPoint[0]}
+              y={lastPoint[1]}
+              fontSize="22"
+              textAnchor="middle"
+              dominantBaseline="central"
+              transform={`rotate(45 ${lastPoint[0]} ${lastPoint[1]})`}
+            >
+              🚀
+            </text>
+          )}
+          {phase === 'crashed' && (
+            <text x={lastPoint[0]} y={lastPoint[1]} fontSize="24" textAnchor="middle" dominantBaseline="central">
+              💥
+            </text>
+          )}
         </svg>
-
-        {phase === 'running' && points.length > 0 && (
-          <span
-            className="crash-rocket"
-            style={{ position: 'absolute', left: lastPoint[0], top: lastPoint[1], transform: 'translate(-50%, -50%) rotate(45deg)' }}
-          >
-            🚀
-          </span>
-        )}
-        {phase === 'crashed' && (
-          <span
-            className="crash-rocket crash-boom"
-            style={{ position: 'absolute', left: lastPoint[0], top: lastPoint[1], transform: 'translate(-50%, -50%)' }}
-          >
-            💥
-          </span>
-        )}
 
         <div
           style={{
             position: 'absolute',
             inset: 0,
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'center',
             flexDirection: 'column',
+            paddingTop: 18,
             pointerEvents: 'none',
           }}
         >
           {phase === 'waiting' && (
-            <>
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div className="mono" style={{ fontSize: 14, color: 'var(--text-muted)' }}>
                 Next round in
               </div>
@@ -293,13 +302,17 @@ export default function CrashGame({ userId, balanceLamports, socket, onBalanceCh
                   seed hash: {live.serverSeedHash.slice(0, 20)}…
                 </div>
               )}
-            </>
+            </div>
           )}
           {phase === 'running' && (
-            <div className="mono crash-multiplier crash-live">{multiplier.toFixed(2)}x</div>
+            <div style={{ width: '100%', textAlign: 'center' }}>
+              <div className="mono crash-multiplier crash-live">{multiplier.toFixed(2)}x</div>
+            </div>
           )}
           {phase === 'crashed' && (
-            <div className="mono crash-multiplier crash-dead">{multiplier.toFixed(2)}x</div>
+            <div style={{ width: '100%', textAlign: 'center' }}>
+              <div className="mono crash-multiplier crash-dead">{multiplier.toFixed(2)}x</div>
+            </div>
           )}
         </div>
       </div>
