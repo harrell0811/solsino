@@ -37,6 +37,13 @@ export default function Home() {
   const [slotsVariant, setSlotsVariant] = useState(null); // null = show the picker
   const [showProfile, setShowProfile] = useState(false);
   const [showFairness, setShowFairness] = useState(false);
+  const [rtpInfo, setRtpInfo] = useState({});
+
+  useEffect(() => {
+    api.getRtpInfo().then(setRtpInfo).catch(() => {});
+  }, []);
+
+  const openFairness = useCallback(() => setShowFairness(true), []);
 
   // Connect (or create) the backend user record whenever the wallet connects
   useEffect(() => {
@@ -297,6 +304,8 @@ export default function Home() {
               userId={user?.userId}
               balanceLamports={user?.balanceLamports}
               onBalanceChange={handleBalanceChange}
+              rtpInfo={rtpInfo.coinflip}
+              onOpenFairness={openFairness}
             />
           )}
           {activeGame === 'mines' && (
@@ -304,6 +313,8 @@ export default function Home() {
               userId={user?.userId}
               balanceLamports={user?.balanceLamports}
               onBalanceChange={handleBalanceChange}
+              rtpInfo={rtpInfo.mines}
+              onOpenFairness={openFairness}
             />
           )}
           {activeGame === 'crash' && (
@@ -312,6 +323,8 @@ export default function Home() {
               balanceLamports={user?.balanceLamports}
               socket={socket}
               onBalanceChange={handleBalanceChange}
+              rtpInfo={rtpInfo.crash}
+              onOpenFairness={openFairness}
             />
           )}
           {activeGame === 'slots' && !slotsVariant && (
@@ -340,6 +353,8 @@ export default function Home() {
                 userId={user?.userId}
                 balanceLamports={user?.balanceLamports}
                 onBalanceChange={handleBalanceChange}
+                rtpInfo={rtpInfo.slots}
+                onOpenFairness={openFairness}
               />
             </>
           )}
@@ -352,6 +367,8 @@ export default function Home() {
                 userId={user?.userId}
                 balanceLamports={user?.balanceLamports}
                 onBalanceChange={handleBalanceChange}
+                rtpInfo={rtpInfo.cluster_slot}
+                onOpenFairness={openFairness}
               />
             </>
           )}
@@ -360,6 +377,8 @@ export default function Home() {
               userId={user?.userId}
               balanceLamports={user?.balanceLamports}
               onBalanceChange={handleBalanceChange}
+              rtpInfo={rtpInfo.limbo}
+              onOpenFairness={openFairness}
             />
           )}
           {activeGame === 'dragontower' && (
@@ -367,10 +386,28 @@ export default function Home() {
               userId={user?.userId}
               balanceLamports={user?.balanceLamports}
               onBalanceChange={handleBalanceChange}
+              rtpInfo={rtpInfo.dragontower}
+              onOpenFairness={openFairness}
             />
           )}
-          {activeGame === 'blackjack' && <BlackjackGame userId={user?.userId} balanceLamports={user?.balanceLamports} onBalanceChange={handleBalanceChange} />}
-          {activeGame === 'keno' && <KenoGame userId={user?.userId} balanceLamports={user?.balanceLamports} onBalanceChange={handleBalanceChange} />}
+          {activeGame === 'blackjack' && (
+            <BlackjackGame
+              userId={user?.userId}
+              balanceLamports={user?.balanceLamports}
+              onBalanceChange={handleBalanceChange}
+              rtpInfo={rtpInfo.blackjack}
+              onOpenFairness={openFairness}
+            />
+          )}
+          {activeGame === 'keno' && (
+            <KenoGame
+              userId={user?.userId}
+              balanceLamports={user?.balanceLamports}
+              onBalanceChange={handleBalanceChange}
+              rtpInfo={rtpInfo.keno}
+              onOpenFairness={openFairness}
+            />
+          )}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>

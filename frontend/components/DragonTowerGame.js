@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, solToLamports, lamportsToSol } from '../lib/api';
+import GameInfoBar from './GameInfoBar';
 import QuickBetButtons from './QuickBetButtons';
 
 const LEVELS = 9;
@@ -11,7 +12,7 @@ const DIFFICULTIES = {
   master: { tiles: 4, label: 'Master (3 dragons)' },
 };
 
-export default function DragonTowerGame({ userId, balanceLamports, onBalanceChange }) {
+export default function DragonTowerGame({ userId, balanceLamports, onBalanceChange, rtpInfo, onOpenFairness }) {
   const [wager, setWager] = useState('0.01');
   const [difficulty, setDifficulty] = useState('medium');
   const [round, setRound] = useState(null);
@@ -98,6 +99,7 @@ export default function DragonTowerGame({ userId, balanceLamports, onBalanceChan
 
   return (
     <div className="panel">
+      <GameInfoBar rtpInfo={rtpInfo} onOpenFairness={onOpenFairness} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>🐉 Dragon Tower</h2>
         {round?.multiplier && (

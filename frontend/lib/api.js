@@ -44,6 +44,7 @@ export const api = {
   getChatHistory: () => request('/api/chat/recent'),
 
   getCurrentSeed: (userId) => request(`/api/seeds/current?userId=${userId}`),
+  getRtpInfo: () => request('/api/games/rtp'),
 
   getSeedHistory: (userId) => request(`/api/seeds/history?userId=${userId}`),
 

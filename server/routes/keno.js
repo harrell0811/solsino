@@ -7,8 +7,31 @@ const router = express.Router(); const prisma = new PrismaClient();
 // The boost is applied to the hit-based table rather than just changing the
 // displayed odds, making it part of the authoritative server result.
 const PAYOUTS = [0, 1, 2, 5, 12, 30, 80, 200, 500, 1200, 3000];
+// Replaces the old selectionBoost() heuristic, which multiplied the
+// same PAYOUTS curve by a rough (11-picks)/3 guess — that produced
+// RTPs from 150% up to 352% for every pick count except 1 (verified
+// by exact hypergeometric calculation, not a guess). The hit-count
+// probability distribution shifts a LOT with pick count (picking 1
+// number can only ever hit 0 or 1; picking 10 can hit anywhere from
+// 0 to 10), so a single linear "boost" can't correct for it — each
+// pick count needs its own exact normalizing factor. These factors
+// are solved exactly so every pick count lands at 95% RTP:
+// factor(picks) = 0.95 / E[PAYOUTS[hits]] computed via the real
+// hypergeometric distribution for drawing 10 of 40 numbers.
+const SELECTION_FACTOR = {
+  1: 3.8,
+  2: 1.9,
+  3: 1.2269,
+  4: 0.8659,
+  5: 0.6355,
+  6: 0.4756,
+  7: 0.3596,
+  8: 0.2735,
+  9: 0.2089,
+  10: 0.16,
+};
 function selectionBoost(selectionCount) {
-  return Math.max(0.35, (11 - selectionCount) / 3);
+  return SELECTION_FACTOR[selectionCount] ?? 0.16;
 }
 
 router.post('/play', async (req, res) => {

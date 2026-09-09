@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { api, solToLamports, lamportsToSol } from '../lib/api';
+import GameInfoBar from './GameInfoBar';
 import QuickBetButtons from './QuickBetButtons';
 
-export default function LimboGame({ userId, balanceLamports, onBalanceChange }) {
+export default function LimboGame({ userId, balanceLamports, onBalanceChange, rtpInfo, onOpenFairness }) {
   const [wager, setWager] = useState('0.01');
   const [target, setTarget] = useState('2.00');
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,7 @@ export default function LimboGame({ userId, balanceLamports, onBalanceChange }) 
 
   return (
     <div className="panel">
+      <GameInfoBar rtpInfo={rtpInfo} onOpenFairness={onOpenFairness} />
       <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Limbo</h2>
 
       <div

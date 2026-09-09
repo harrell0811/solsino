@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { api, solToLamports, lamportsToSol } from '../lib/api';
 import QuickBetButtons from './QuickBetButtons';
+import GameInfoBar from './GameInfoBar';
 
 const GRID_SIZE = 25;
 
-export default function MinesGame({ userId, balanceLamports, onBalanceChange }) {
+export default function MinesGame({ userId, balanceLamports, onBalanceChange, rtpInfo, onOpenFairness }) {
   const [wager, setWager] = useState('0.01');
   const [mineCount, setMineCount] = useState(5);
   const [round, setRound] = useState(null); // { roundId, revealed: [], busted, cashedOut, multiplier }
@@ -66,6 +67,7 @@ export default function MinesGame({ userId, balanceLamports, onBalanceChange }) 
 
   return (
     <div className="panel">
+      <GameInfoBar rtpInfo={rtpInfo} onOpenFairness={onOpenFairness} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Mines</h2>
         {round?.multiplier && (

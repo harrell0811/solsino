@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api, solToLamports, lamportsToSol } from '../lib/api';
 import QuickBetButtons from './QuickBetButtons';
+import GameInfoBar from './GameInfoBar';
 import { sound } from '../lib/sound';
 
 const FLIP_DURATION_MS = 900;
@@ -14,7 +15,7 @@ const FLIP_DURATION_MS = 900;
  *  - 'flipping'— waiting on a request + coin animation
  *  - 'active'  — round is live, player can flip again or cash out
  */
-export default function CoinflipGame({ userId, balanceLamports, onBalanceChange }) {
+export default function CoinflipGame({ userId, balanceLamports, onBalanceChange, rtpInfo, onOpenFairness }) {
   const [wager, setWager] = useState('0.01');
   const [choice, setChoice] = useState('heads');
   const [phase, setPhase] = useState('idle');
@@ -121,12 +122,10 @@ export default function CoinflipGame({ userId, balanceLamports, onBalanceChange 
 
   return (
     <div className="panel">
+      <GameInfoBar rtpInfo={rtpInfo} onOpenFairness={onOpenFairness} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Coinflip</h2>
         <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
-          <span className="mono" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            94% RTP
-          </span>
           <button className="btn" style={{ fontSize: 11, padding: '4px 10px' }} onClick={() => setMuted((m) => !m)}>
             {muted ? '🔇' : '🔊'}
           </button>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api, solToLamports, lamportsToSol } from '../lib/api';
+import GameInfoBar from './GameInfoBar';
 import QuickBetButtons from './QuickBetButtons';
 import { sound } from '../lib/sound';
 
@@ -18,7 +19,7 @@ function wait(ms) {
  * each tumble (1x → 2x → 3x → 5x → 8x → 13x → 21x) until nothing
  * clears anymore.
  */
-export default function ClusterSlot({ userId, balanceLamports, onBalanceChange }) {
+export default function ClusterSlot({ userId, balanceLamports, onBalanceChange, rtpInfo, onOpenFairness }) {
   const [wager, setWager] = useState('0.02');
   const [grid, setGrid] = useState(() => emptyGrid());
   const [litCells, setLitCells] = useState(new Set());
@@ -122,6 +123,7 @@ export default function ClusterSlot({ userId, balanceLamports, onBalanceChange }
 
   return (
     <div className="panel cluster-slot">
+      <GameInfoBar rtpInfo={rtpInfo} onOpenFairness={onOpenFairness} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Neon Cascade</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

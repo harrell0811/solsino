@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { api, solToLamports, lamportsToSol } from '../lib/api';
+import GameInfoBar from './GameInfoBar';
 import QuickBetButtons from './QuickBetButtons';
 import { sound } from '../lib/sound';
 
@@ -36,7 +37,7 @@ function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export default function SlotMachine({ userId, balanceLamports, onBalanceChange }) {
+export default function SlotMachine({ userId, balanceLamports, onBalanceChange, rtpInfo, onOpenFairness }) {
   const [wager, setWager] = useState('0.02');
   const [grid, setGrid] = useState(randomGrid());
   const [spinningCols, setSpinningCols] = useState([false, false, false, false, false]);
@@ -261,6 +262,7 @@ export default function SlotMachine({ userId, balanceLamports, onBalanceChange }
 
   return (
     <div className="panel slot-machine">
+      <GameInfoBar rtpInfo={rtpInfo} onOpenFairness={onOpenFairness} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Solsino Slots</h2>
         <div style={{ display: 'flex', gap: 6 }}>

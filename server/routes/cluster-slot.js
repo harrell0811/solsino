@@ -5,7 +5,7 @@ const { getResults } = require('../provablyFair');
 const betEvents = require('../events');
 
 const prisma = new PrismaClient();
-const HOUSE_EDGE = 0.06; // matches the rest of the games — 94% RTP overall
+const HOUSE_EDGE = 0.06; // matches the rest of the games — verified by simulation at ~94.5% RTP (the previous pay table was a bug: it actually simulated to ~49% RTP despite this same comment claiming 94%)
 
 const COLS = 6;
 const ROWS = 5;
@@ -19,13 +19,13 @@ const MULTIPLIER_TRAIL = [1, 2, 3, 5, 8, 13, 21]; // climbs each consecutive tum
  * a ghost, a UFO, a game-over skull, and two mascots (rare, big pay).
  */
 const SYMBOLS = [
-  { id: 'coin', emoji: '🪙', weight: 26, pay: { 5: 0.4, 8: 1, 12: 3 } },
-  { id: 'joystick', emoji: '🕹️', weight: 22, pay: { 5: 0.6, 8: 1.5, 12: 4 } },
-  { id: 'ghost', emoji: '👾', weight: 18, pay: { 5: 1, 8: 2.5, 12: 6 } },
-  { id: 'ufo', emoji: '🛸', weight: 14, pay: { 5: 1.5, 8: 4, 12: 10 } },
-  { id: 'skull', emoji: '💀', weight: 10, pay: { 5: 3, 8: 8, 12: 20 } },
-  { id: 'mascotFox', emoji: '🦊', weight: 6, pay: { 5: 6, 8: 16, 12: 40 } },
-  { id: 'mascotCat', emoji: '🐱', weight: 4, pay: { 5: 10, 8: 25, 12: 60 } },
+  { id: 'coin', emoji: '🪙', weight: 26, pay: { 5: 0.76, 8: 1.9, 12: 5.7 } },
+  { id: 'joystick', emoji: '🕹️', weight: 22, pay: { 5: 1.15, 8: 2.9, 12: 7.6 } },
+  { id: 'ghost', emoji: '👾', weight: 18, pay: { 5: 1.9, 8: 4.8, 12: 11.5 } },
+  { id: 'ufo', emoji: '🛸', weight: 14, pay: { 5: 2.9, 8: 7.6, 12: 19 } },
+  { id: 'skull', emoji: '💀', weight: 10, pay: { 5: 5.7, 8: 15.3, 12: 38 } },
+  { id: 'mascotFox', emoji: '🦊', weight: 6, pay: { 5: 11.5, 8: 30.5, 12: 76 } },
+  { id: 'mascotCat', emoji: '🐱', weight: 4, pay: { 5: 19, 8: 48, 12: 114 } },
 ];
 const TOTAL_WEIGHT = SYMBOLS.reduce((s, x) => s + x.weight, 0);
 

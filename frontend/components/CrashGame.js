@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, solToLamports, lamportsToSol } from '../lib/api';
+import GameInfoBar from './GameInfoBar';
 import QuickBetButtons from './QuickBetButtons';
 import { sound } from '../lib/sound';
 
 const CHART_WIDTH = 500;
 const CHART_HEIGHT = 220;
 
-export default function CrashGame({ userId, balanceLamports, socket, onBalanceChange }) {
+export default function CrashGame({ userId, balanceLamports, socket, onBalanceChange, rtpInfo, onOpenFairness }) {
   const [wager, setWager] = useState('0.01');
   const [live, setLive] = useState({
     phase: 'waiting',
@@ -209,6 +210,7 @@ export default function CrashGame({ userId, balanceLamports, socket, onBalanceCh
 
   return (
     <div className="panel">
+      <GameInfoBar rtpInfo={rtpInfo} onOpenFairness={onOpenFairness} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Crash</h2>
         <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>

@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { api, solToLamports, lamportsToSol } from '../lib/api';
 import QuickBetButtons from './QuickBetButtons';
+import GameInfoBar from './GameInfoBar';
 import { sound } from '../lib/sound';
 
 function Card({ card, delay = 0 }) {
   const red = card.suit === '♥' || card.suit === '♦';
   return <div className={`playing-card ${red ? 'playing-card-red' : ''}`} style={{ animationDelay: `${delay}ms` }}><b>{card.rank}</b><span>{card.suit}</span></div>;
 }
-export default function BlackjackGame({ userId, balanceLamports, onBalanceChange }) {
+export default function BlackjackGame({ userId, balanceLamports, onBalanceChange, rtpInfo, onOpenFairness }) {
   const [wager, setWager] = useState('0.01'); const [game, setGame] = useState(null); const [loading, setLoading] = useState(false); const [error, setError] = useState(null);
   async function action(fn) { setLoading(true); setError(null); try { const res = await fn(); setGame(res); if (res.newBalanceLamports) onBalanceChange(res.newBalanceLamports); if (res.complete) res.outcome === 'win' || res.outcome === 'blackjack' ? sound.bigWin() : res.outcome === 'push' ? sound.smallWin() : sound.lose(); else sound.cardDeal(); } catch (err) { setError(err.message); } finally { setLoading(false); } }
-  return <div className="panel blackjack-game"><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><h2 style={{ margin: 0, fontSize: 18 }}>Blackjack</h2><span className="mono" style={{ color: 'var(--text-muted)', fontSize: 12 }}>DEALER STANDS ON 17</span></div>
+  return <div className="panel blackjack-game"><GameInfoBar rtpInfo={rtpInfo} onOpenFairness={onOpenFairness} /><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><h2 style={{ margin: 0, fontSize: 18 }}>Blackjack</h2><span className="mono" style={{ color: 'var(--text-muted)', fontSize: 12 }}>DEALER STANDS ON 17</span></div>
     <div className="blackjack-table"><div className="hand-label">Dealer {game?.dealerScore ? `· ${game.dealerScore}` : ''}</div><div className="card-hand">{game?.dealerCards?.map((c, i) => <Card key={i} card={c} delay={i * 120} />) || <div className="card-placeholder">?</div>}</div><div className="blackjack-divider" /><div className="hand-label">Your hand {game ? `· ${game.playerScore}` : ''}</div><div className="card-hand">{game?.playerCards?.map((c, i) => <Card key={i} card={c} delay={i * 120} />) || <div className="card-placeholder">?</div>}</div>
       {game?.hands?.length > 1 && <div className="blackjack-split-hands">{game.hands.map((hand, hi) => <div key={hi} className={hi === game.activeHand && !game.complete ? 'blackjack-active-hand' : ''}>Hand {hi + 1} · {hand.score}<div className="card-hand">{hand.cards.map((c, i) => <Card key={i} card={c} delay={i * 70} />)}</div></div>)}</div>}
       {game?.complete && <div className={`blackjack-result ${game.outcome === 'win' || game.outcome === 'blackjack' || game.outcome === 'resolved' ? 'result-win' : game.outcome === 'push' ? '' : 'result-lose'}`}>{game.outcome === 'blackjack' ? 'BLACKJACK!' : game.outcome === 'bust' ? 'BUST' : game.outcome?.toUpperCase()} {Number(game.payoutLamports) > 0 && `· ${lamportsToSol(game.payoutLamports)} SOL`}</div>}</div>
